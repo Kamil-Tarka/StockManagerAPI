@@ -1,0 +1,7 @@
+#Production settings
+#Database settings
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD="Tetriandoch#2501"
+DB_NAME=stock_manager
+CHARSET=utf8mb4
