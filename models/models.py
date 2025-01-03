@@ -1,17 +1,24 @@
 import datetime
 from typing import List, Optional
 
-from sqlalchemy import DateTime, ForeignKeyConstraint, Index, String, Text
-from sqlalchemy.dialects.mysql import INTEGER, TINYINT
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    Text,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from database_settings import Base
 
 
 class ItemCategory(Base):
     __tablename__ = "item_category"
 
-    id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
@@ -24,7 +31,7 @@ class ItemCategory(Base):
 class Roles(Base):
     __tablename__ = "roles"
 
-    id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
@@ -37,13 +44,13 @@ class Roles(Base):
 class User(Base):
     __tablename__ = "user"
 
-    id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_name: Mapped[str] = mapped_column(String(50))
     hashed_password: Mapped[str] = mapped_column(String(255))
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(50))
-    is_active: Mapped[int] = mapped_column(TINYINT(1))
+    is_active: Mapped[int] = mapped_column(Boolean)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
 
@@ -61,10 +68,10 @@ class StockItem(Base):
         Index("fk_StockItem_category_id", "category_id"),
     )
 
-    id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-    amount: Mapped[int] = mapped_column(INTEGER(11))
-    category_id: Mapped[int] = mapped_column(INTEGER(11))
+    amount: Mapped[int] = mapped_column(Integer)
+    category_id: Mapped[int] = mapped_column(Integer)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     description: Mapped[Optional[str]] = mapped_column(Text)
@@ -83,9 +90,9 @@ class UserRoles(Base):
         Index("fk_UserRoles_user_id", "user_id"),
     )
 
-    id: Mapped[int] = mapped_column(INTEGER(11), primary_key=True)
-    user_id: Mapped[int] = mapped_column(INTEGER(11))
-    role_id: Mapped[int] = mapped_column(INTEGER(11))
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer)
+    role_id: Mapped[int] = mapped_column(Integer)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
 
