@@ -1,0 +1,10 @@
+fastapi[standard]
+sqlalchemy
+passlib
+bcrypt
+python-multipart
+mariadb
+alembic
+pytest
+httpx
+pytest-asyncio
