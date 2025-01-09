@@ -4,9 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, Path, status
 from sqlalchemy.orm import Session
 
 from database_settings import get_db_session
-from services.services import StockItemService, get_stock_item_service
+from models.models import CreateStockItemDto, ReadStockItemDto, UpdateStockItemDto
+from services.stock_item_service import StockItemService, get_stock_item_service
 
 router = APIRouter(prefix="/stock-items", tags=["stock-items"])
+
 db_session = Annotated[Session, Depends(get_db_session)]
 service_dependency = Annotated[
     StockItemService,
@@ -16,15 +18,49 @@ service_dependency = Annotated[
 
 @router.get(
     "/{stock_item_id}",
+    response_model=ReadStockItemDto,
     status_code=status.HTTP_200_OK,
 )
 async def read_stock_item(
     db: db_session, service: service_dependency, stock_item_id: int = Path(gt=0)
 ):
-    stock_item_model = service.get_stock_item(db, stock_item_id)
+    stock_item_model = service.get_stock_item_by_id(db, stock_item_id)
     if stock_item_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Stock item with id={stock_item_id} not found",
         )
     return stock_item_model
+
+
+@router.get("", response_model=list[ReadStockItemDto], status_code=status.HTTP_200_OK)
+async def read_all_stock_items(db: db_session, service: service_dependency):
+    stock_items = service.get_all_stock_items(db)
+    return stock_items
+
+
+@router.post("", status_code=status.HTTP_201_CREATED)
+async def create_stock_item(
+    db: db_session,
+    service: service_dependency,
+    create_stock_item_dto: CreateStockItemDto,
+):
+    created_stock_item = service.create_stock_item(db, create_stock_item_dto)
+    return f"api/v1/stock-items{created_stock_item.id}"
+
+
+@router.put("/{stock_item_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def update_stock_item(
+    db: db_session,
+    service: service_dependency,
+    update_stock_item: UpdateStockItemDto,
+    stock_item_id: int = Path(gt=0),
+):
+    service.update_stock_item(db, stock_item_id, update_stock_item)
+
+
+@router.delete("/{stock_item_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_stock_item(
+    db: db_session, service: service_dependency, stock_item_id: int = Path(gt=0)
+):
+    service.delete_stock_item(db, stock_item_id)

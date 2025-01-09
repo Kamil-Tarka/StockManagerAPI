@@ -1,14 +1,19 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
 from database_settings import engine
 from models.entities import Base
-from routers import stock_item_router
+from routers import item_category_router, stock_item_router
 
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(stock_item_router.router)
+main_router = APIRouter(prefix="/api/v1")
+
+main_router.include_router(stock_item_router.router)
+main_router.include_router(item_category_router.router)
+
+app.include_router(main_router)
 
 
 @app.get("/")
