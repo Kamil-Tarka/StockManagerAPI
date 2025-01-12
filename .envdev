@@ -1,3 +1,7 @@
 # Development settings
 # Database settings
 DEV_DB_NAME = "stock_manager.db"
+
+
+# Secret key
+SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4

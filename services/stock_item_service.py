@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from models.entities import StockItem
@@ -46,7 +46,7 @@ class StockItemService:
             is None
         ):
             raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Category with id={create_stock_item_dto.category_id} not found",
             )
         stock_item = StockItem(**create_stock_item_dto.model_dump())
@@ -62,13 +62,13 @@ class StockItemService:
         self,
         db: Session,
         stock_item_id: int,
-        update_stock_item_dto: CreateStockItemDto,
+        update_stock_item_dto: UpdateStockItemDto,
     ) -> StockItem:
         stock_item = self.get_stock_item_by_id(db, stock_item_id)
 
         if stock_item is None:
             raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Stock item with id={stock_item_id} not found",
             )
         current_date = datetime.now(timezone.utc)
@@ -98,7 +98,7 @@ class StockItemService:
                 is None
             ):
                 raise HTTPException(
-                    status_code=404,
+                    status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Category with id={update_stock_item_dto.category_id} not found",
                 )
             stock_item.category_id = update_stock_item_dto.category_id
@@ -113,7 +113,8 @@ class StockItemService:
 
         if stock_item is None:
             raise HTTPException(
-                status_code=404, detail=f"Stock item with id={stock_item_id} not found"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Stock item with id={stock_item_id} not found",
             )
         db.delete(stock_item)
         return True

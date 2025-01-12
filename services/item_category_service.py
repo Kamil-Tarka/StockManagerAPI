@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import CategoryNotFoundError
@@ -36,7 +37,10 @@ class ItemCategoryService:
         item_category = self.get_category_by_name(db, create_item_category.name)
 
         if item_category:
-            return item_category
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Item category with name={create_item_category.name} already exists",
+            )
 
         item_category = ItemCategory(**create_item_category.model_dump())
         current_date = datetime.now(timezone.utc)
@@ -56,8 +60,9 @@ class ItemCategoryService:
         item_category = self.get_item_category_by_id(db, category_id)
 
         if item_category is None:
-            raise CategoryNotFoundError(
-                f"Item category with id={category_id} not found"
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Item category with id={category_id} not found",
             )
 
         if (

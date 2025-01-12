@@ -7,3 +7,7 @@ DB_USER = username
 DB_PASSWORD = password
 DB_NAME = database_name
 CHARSET = charset  # utf8mb4
+
+
+# Secret key
+SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4
