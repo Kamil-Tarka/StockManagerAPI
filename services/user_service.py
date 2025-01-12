@@ -97,3 +97,32 @@ class UserService:
         db.commit()
         db.refresh(user)
         return user
+
+    def delete_user(self, db: Session, user_id: int) -> User:
+        user = self.get_user_by_id(db, user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with id={user_id} not found",
+            )
+        db.delete(user)
+        db.commit()
+        return user
+
+    def authenticate_user(self, db: Session, user_name: str, password: str) -> User:
+        user = self.get_user_by_user_name(db, user_name)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with user_name={user_name} not found",
+            )
+        if not self.bcrypt_context.verify(password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect password",
+            )
+        return user
+
+
+def get_user_service() -> UserService:
+    return UserService()

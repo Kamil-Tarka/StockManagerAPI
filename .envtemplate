@@ -10,4 +10,4 @@ CHARSET = charset  # utf8mb4
 
 
 # Secret key
-SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4
+SECRET_KEY = SECRETKEY
