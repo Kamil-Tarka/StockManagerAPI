@@ -19,10 +19,10 @@ class ReadStockItemDto(BaseModel):
     id: int
     name: str
     description: Optional[str] = None
-    amount: int
+    quantity: int
     creation_date: datetime
     last_modification_date: datetime
-    categories: list[ReadItemCategoryDto]
+    category: ReadItemCategoryDto
 
 
 class CreateItemCategoryDto(BaseModel):
@@ -42,7 +42,7 @@ class CreateStockItemDto(BaseModel):
 
     name: str = Field(..., min_length=1, max_length=50)
     description: Optional[str] = None
-    amount: int = Field(..., gt=0)
+    quantity: int = Field(..., gt=0)
     category_id: int = Field(..., gt=0)
 
 
@@ -51,7 +51,7 @@ class UpdateStockItemDto(BaseModel):
 
     name: str | None = Field(None, max_length=50)
     description: Optional[str] = None
-    amount: int | None = Field(None, gt=0)
+    quantity: int | None = Field(None, gt=0)
     category_id: int | None = Field(None, gt=0)
 
 
@@ -111,3 +111,10 @@ class UpdateUserDto(BaseModel):
     password: str | None = Field(None, min_length=8)
     is_active: bool | None = None
     role_id: int | None = Field(None, gt=0)
+
+
+class LoginUserDto(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    user_name: str = Field(..., min_length=1, max_length=50)
+    password: str = Field(..., min_length=8)

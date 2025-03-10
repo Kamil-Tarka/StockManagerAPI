@@ -70,7 +70,7 @@ class StockItem(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-    amount: Mapped[int] = mapped_column(Integer)
+    quantity: Mapped[int] = mapped_column(Integer)
     category_id: Mapped[int] = mapped_column(Integer)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)

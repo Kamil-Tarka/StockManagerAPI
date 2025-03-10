@@ -11,3 +11,8 @@ CHARSET = charset  # utf8mb4
 
 # Secret key
 SECRET_KEY = SECRETKEY
+
+#Token expiration time (minutes)
+TOKEN_EXPIRATION_TIME = TIME
+#Token hash algorithm
+ALGORITHM = ALGORITHM_NAME

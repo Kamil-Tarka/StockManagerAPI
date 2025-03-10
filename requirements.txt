@@ -1,7 +1,6 @@
 fastapi[standard]
 sqlalchemy
-passlib
-bcrypt
+passlib[bcrypt]
 python-multipart
 mariadb
 pymysql
@@ -9,4 +8,5 @@ alembic
 pytest
 httpx
 pytest-asyncio
+jose
 sqlacodegen==3.0.0rc5
