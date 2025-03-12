@@ -87,7 +87,7 @@ class ReadUserDto(BaseModel):
     is_active: bool
     creation_date: datetime
     last_modification_date: datetime
-    roles: list[ReadRoleDto]
+    role: ReadRoleDto
 
 
 class CreateUserDto(BaseModel):
@@ -97,7 +97,7 @@ class CreateUserDto(BaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name: str = Field(..., min_length=1, max_length=50)
     email: str = Field(..., min_length=1, max_length=50)
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, exclude=True)
     role_id: int = Field(..., gt=0)
 
 

@@ -28,21 +28,23 @@ class ItemCategory(Base):
     )
 
 
-class Roles(Base):
-    __tablename__ = "roles"
+class Role(Base):
+    __tablename__ = "role"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
 
-    user_roles: Mapped[List["UserRoles"]] = relationship(
-        "UserRoles", back_populates="role"
-    )
+    role_users: Mapped[list["User"]] = relationship("User", back_populates="role")
 
 
 class User(Base):
     __tablename__ = "user"
+    __table_args__ = (
+        ForeignKeyConstraint(["role_id"], ["role.id"], name="fk_User_Role_id"),
+        Index("fk_User_Role_id", "role_id"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_name: Mapped[str] = mapped_column(String(50))
@@ -53,10 +55,8 @@ class User(Base):
     is_active: Mapped[int] = mapped_column(Boolean)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
-
-    user_roles: Mapped[List["UserRoles"]] = relationship(
-        "UserRoles", back_populates="user"
-    )
+    role_id: Mapped[int] = mapped_column(Integer)
+    role: Mapped["Role"] = relationship("Role", back_populates="role_users")
 
 
 class StockItem(Base):
@@ -79,22 +79,3 @@ class StockItem(Base):
     category: Mapped["ItemCategory"] = relationship(
         "ItemCategory", back_populates="stock_item"
     )
-
-
-class UserRoles(Base):
-    __tablename__ = "user_roles"
-    __table_args__ = (
-        ForeignKeyConstraint(["role_id"], ["roles.id"], name="fk_UserRoles_role_id"),
-        ForeignKeyConstraint(["user_id"], ["user.id"], name="fk_UserRoles_user_id"),
-        Index("fk_UserRoles_role_id", "role_id"),
-        Index("fk_UserRoles_user_id", "user_id"),
-    )
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer)
-    role_id: Mapped[int] = mapped_column(Integer)
-    creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
-    last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
-
-    role: Mapped["Roles"] = relationship("Roles", back_populates="user_roles")
-    user: Mapped["User"] = relationship("User", back_populates="user_roles")

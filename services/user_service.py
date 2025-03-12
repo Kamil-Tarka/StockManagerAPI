@@ -6,14 +6,14 @@ from sqlalchemy.orm import Session
 
 from models.entities import User
 from models.models import CreateUserDto, LoginUserDto, UpdateUserDto
-from services.roles_service import RolesService
+from services.role_service import RoleService
 
 
 class UserService:
     def __init__(self, db: Session):
         self.db = db
         self.bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        self.roles_service = RolesService(db)
+        self.role_service = RoleService(db)
 
     def get_user_by_id(self, user_id: int) -> User | None:
         user = self.db.query(User).filter(User.id == user_id).first()
@@ -28,13 +28,14 @@ class UserService:
         return user
 
     def create_user(self, create_user_dto: CreateUserDto) -> User:
-        user = self.get_user_by_user_name(self.db, create_user_dto.user_name)
+        user = self.get_user_by_user_name(create_user_dto.user_name)
         if user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"User with user_name={create_user_dto.user_name} already exists",
             )
-        if self.roles_service.get_role_by_id(create_user_dto.role_id) is None:
+        role = self.role_service.get_role_by_id(create_user_dto.role_id)
+        if role is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Role with id={create_user_dto.role_id} not found",
@@ -44,6 +45,7 @@ class UserService:
         current_date = datetime.now(timezone.utc)
         user.creation_date = current_date
         user.last_modification_date = current_date
+        user.is_active = True
         self.db.add(user)
         self.db.commit()
         self.db.refresh(user)
@@ -58,7 +60,7 @@ class UserService:
             )
         if (
             update_user_dto.role_id
-            and self.roles_service.get_role_by_id(update_user_dto.role_id) is None
+            and self.role_service.get_role_by_id(update_user_dto.role_id) is None
         ):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -87,7 +89,7 @@ class UserService:
             user.is_active = update_user_dto.is_active
             user.last_modification_date = current_date
         if update_user_dto.role_id and user.role_id != update_user_dto.role_id:
-            if self.roles_service.get_role_by_id(update_user_dto.role_id) is None:
+            if self.role_service.get_role_by_id(update_user_dto.role_id) is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail=f"Role with id={update_user_dto.role_id} not found",

@@ -42,7 +42,7 @@ class StockItemService:
             return stock_item
         if (
             self.item_category_service.get_item_category_by_id(
-                self.db, create_stock_item_dto.category_id
+                create_stock_item_dto.category_id
             )
             is None
         ):
@@ -72,11 +72,8 @@ class StockItemService:
                 detail=f"Stock item with id={stock_item_id} not found",
             )
         current_date = datetime.now(timezone.utc)
-        if (
-            update_stock_item_dto.name
-            and stock_item.quantity != update_stock_item_dto.name
-        ):
-            stock_item.quantity = update_stock_item_dto.name
+        if update_stock_item_dto.name and stock_item.name != update_stock_item_dto.name:
+            stock_item.name = update_stock_item_dto.name
             stock_item.last_modification_date = current_date
         if (
             update_stock_item_dto.description
@@ -86,9 +83,9 @@ class StockItemService:
             stock_item.last_modification_date = current_date
         if (
             update_stock_item_dto.quantity
-            and stock_item.amount != update_stock_item_dto.quantity
+            and stock_item.quantity != update_stock_item_dto.quantity
         ):
-            stock_item.amount = update_stock_item_dto.quantity
+            stock_item.quantity = update_stock_item_dto.quantity
             stock_item.last_modification_date = current_date
         if (
             update_stock_item_dto.category_id
@@ -120,4 +117,5 @@ class StockItemService:
                 detail=f"Stock item with id={stock_item_id} not found",
             )
         self.db.delete(stock_item)
+        self.db.commit()
         return True

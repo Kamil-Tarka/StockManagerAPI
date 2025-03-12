@@ -20,14 +20,14 @@ class AuthService:
         self.app_settings = AppSettings()
 
     def create_access_token(self, login_user_data: LoginUserDto):
-        user = self.user_service.verify_user_password(self.db, login_user_data)
+        user = self.user_service.verify_user_password(login_user_data)
         expires = datetime.now(timezone.utc) + timedelta(
             minutes=self.app_settings.token_expiration_time
         )
         encode = {
             "id": user.id,
             "sub": user.user_name,
-            "roles": [{"id": role.id, "name": role.name} for role in user.roles],
+            "role": {"id": user.role.id, "name": user.role.name},
             "exp": expires,
         }
 
@@ -42,12 +42,20 @@ class AuthService:
                 self.app_settings.secret_key,
                 algorithms=[self.app_settings.token_algorithm],
             )
-            user = self.user_service.get_user_by_id(self.db, payload["id"])
+            subject: str = payload.get("sub")
+            user_id = payload.get("id")
+            user = self.user_service.get_user_by_id(user_id)
+            user_role = payload.get("role")
             if user is None:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
                 )
-            return user
+            if user.user_name != subject:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid credentials",
+                )
+            return {"id": user.id, "user_name": user.user_name, "role": user_role}
         except JWTError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"

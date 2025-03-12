@@ -36,7 +36,7 @@ class ItemCategoryService:
         self, create_item_category: CreateItemCategoryDto
     ) -> ItemCategory:
 
-        item_category = self.get_category_by_name(self.db, create_item_category.name)
+        item_category = self.get_category_by_name(create_item_category.name)
 
         if item_category:
             raise HTTPException(

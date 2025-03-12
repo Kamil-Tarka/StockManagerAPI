@@ -12,9 +12,7 @@ service_dependency = Annotated[StockItemService, Depends(get_stock_item_service)
 
 
 @router.get(
-    "/{stock_item_id}",
-    response_model=ReadStockItemDto,
-    status_code=status.HTTP_200_OK,
+    "/{stock_item_id}", response_model=ReadStockItemDto, status_code=status.HTTP_200_OK
 )
 async def read_stock_item(service: service_dependency, stock_item_id: int = Path(gt=0)):
     stock_item_model = service.get_stock_item_by_id(stock_item_id)
@@ -38,7 +36,7 @@ async def create_stock_item(
     create_stock_item_dto: CreateStockItemDto,
 ):
     created_stock_item = service.create_stock_item(create_stock_item_dto)
-    return f"api/v1/stock-items{created_stock_item.id}"
+    return f"api/v1/stock-items/{created_stock_item.id}"
 
 
 @router.put("/{stock_item_id}", status_code=status.HTTP_204_NO_CONTENT)

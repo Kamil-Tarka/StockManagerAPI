@@ -47,9 +47,9 @@ async def update_item_category(
     item_category: UpdateItemCategoryDto,
     item_category_id: int,
 ):
-    service.update_item_category(item_category_id, item_category)
+    service.update_category(item_category_id, item_category)
 
 
 @router.delete("/{item_category_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_item_category(service: service_dependency, item_category_id: int):
-    service.delete_item_category(item_category_id)
+    service.delete_category(item_category_id)
