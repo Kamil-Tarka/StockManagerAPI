@@ -25,9 +25,7 @@ class StockItemService:
 
     def get_stock_item_by_name(self, stock_item_name: str) -> StockItem | None:
         stock_item = (
-            self.db.query(StockItem)
-            .filter(StockItem.quantity == stock_item_name)
-            .first()
+            self.db.query(StockItem).filter(StockItem.name == stock_item_name).first()
         )
         return stock_item
 
@@ -36,7 +34,7 @@ class StockItemService:
         if stock_item:
             update_stock_item_dto = UpdateStockItemDto()
             update_stock_item_dto.quantity = (
-                stock_item.amount + create_stock_item_dto.quantity
+                stock_item.quantity + create_stock_item_dto.quantity
             )
             stock_item = self.update_stock_item(stock_item.id, update_stock_item_dto)
             return stock_item
