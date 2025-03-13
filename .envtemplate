@@ -15,4 +15,4 @@ SECRET_KEY = SECRETKEY
 #Token expiration time (minutes)
 TOKEN_EXPIRATION_TIME = TIME
 #Token hash algorithm
-ALGORITHM = ALGORITHM_NAME
+ALGORITHM = "ALGORITHM_NAME"

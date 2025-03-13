@@ -112,11 +112,11 @@ class UserService:
         return user
 
     def verify_user_password(self, login_data: LoginUserDto) -> User:
-        user = self.get_user_by_user_name(login_data.user_name)
+        user = self.get_user_by_user_name(login_data.username)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User with user_name={login_data.user_name} not found",
+                detail=f"User with user_name={login_data.username} not found",
             )
         if not self.bcrypt_context.verify(login_data.password, user.hashed_password):
             raise HTTPException(

@@ -32,4 +32,4 @@ class AppSettings:
         elif self.envirnoment == "production":
             load_dotenv()
 
-        return os.getenv("TOKEN_ALGORITHM")
+        return os.getenv("ALGORITHM")

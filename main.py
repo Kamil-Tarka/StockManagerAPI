@@ -2,7 +2,13 @@ from fastapi import APIRouter, FastAPI
 
 from database_settings import engine
 from models.entities import Base
-from routers import item_category_router, role_router, stock_item_router, user_router
+from routers import (
+    auth_router,
+    item_category_router,
+    role_router,
+    stock_item_router,
+    user_router,
+)
 
 app = FastAPI()
 
@@ -14,6 +20,7 @@ main_router.include_router(stock_item_router.router)
 main_router.include_router(item_category_router.router)
 main_router.include_router(user_router.router)
 main_router.include_router(role_router.router)
+main_router.include_router(auth_router.router)
 
 app.include_router(main_router)
 

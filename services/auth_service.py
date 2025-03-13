@@ -1,16 +1,12 @@
 from datetime import datetime, timedelta, timezone
-from typing import Annotated
 
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException
 from jose import JWTError, jwt
 from starlette import status
 
 from app_settings import AppSettings
 from models.models import LoginUserDto
 from services.user_service import UserService
-
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 
 class AuthService:
@@ -35,7 +31,7 @@ class AuthService:
             encode, self.app_settings.secret_key, self.app_settings.token_algorithm
         )
 
-    def get_current_user(self, token: Annotated[str, Depends(oauth2_bearer)]):
+    def get_current_user(self, token: str):
         try:
             payload = jwt.decode(
                 token,
