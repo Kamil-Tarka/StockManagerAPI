@@ -3,6 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from dependencies.dependencies import get_current_user, get_stock_item_service
+from exceptions.exceptions import (
+    CategoryNotFoundException,
+    StockItemAlreadyExistsException,
+    StockItemNotFoundException,
+)
 from models.models import CreateStockItemDto, ReadStockItemDto, UpdateStockItemDto
 from services.stock_item_service import StockItemService
 
@@ -18,12 +23,10 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def read_stock_item(
     user: user_dependency, service: service_dependency, stock_item_id: int = Path(gt=0)
 ):
-    stock_item_model = service.get_stock_item_by_id(stock_item_id)
-    if stock_item_model is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Stock item with id={stock_item_id} not found",
-        )
+    try:
+        stock_item_model = service.get_stock_item_by_id(stock_item_id)
+    except StockItemNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return stock_item_model
 
 
@@ -39,7 +42,12 @@ async def create_stock_item(
     service: service_dependency,
     create_stock_item_dto: CreateStockItemDto,
 ):
-    created_stock_item = service.create_stock_item(create_stock_item_dto)
+    try:
+        created_stock_item = service.create_stock_item(create_stock_item_dto)
+    except StockItemAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except CategoryNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return f"api/v1/stock-items/{created_stock_item.id}"
 
 
@@ -50,7 +58,14 @@ async def update_stock_item(
     update_stock_item: UpdateStockItemDto,
     stock_item_id: int = Path(gt=0),
 ):
-    service.update_stock_item(stock_item_id, update_stock_item)
+    try:
+        service.update_stock_item(stock_item_id, update_stock_item)
+    except StockItemNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CategoryNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except StockItemAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"StockItem with id={stock_item_id} updated."
 
 
@@ -58,5 +73,8 @@ async def update_stock_item(
 async def delete_stock_item(
     user: user_dependency, service: service_dependency, stock_item_id: int = Path(gt=0)
 ):
-    service.delete_stock_item(stock_item_id)
+    try:
+        service.delete_stock_item(stock_item_id)
+    except StockItemNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return f"StockItem with id={stock_item_id} deleted."

@@ -18,7 +18,7 @@ from database_settings import Base
 class ItemCategory(Base):
     __tablename__ = "item_category"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50))
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
@@ -31,7 +31,7 @@ class ItemCategory(Base):
 class Role(Base):
     __tablename__ = "role"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50))
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
@@ -46,13 +46,13 @@ class User(Base):
         Index("fk_User_Role_id", "role_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_name: Mapped[str] = mapped_column(String(50))
     hashed_password: Mapped[str] = mapped_column(String(255))
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(50))
-    is_active: Mapped[int] = mapped_column(Boolean)
+    is_active: Mapped[int] = mapped_column(Boolean, server_default=0)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     role_id: Mapped[int] = mapped_column(Integer)
@@ -68,7 +68,7 @@ class StockItem(Base):
         Index("fk_StockItem_category_id", "category_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(50))
     quantity: Mapped[int] = mapped_column(Integer)
     category_id: Mapped[int] = mapped_column(Integer)

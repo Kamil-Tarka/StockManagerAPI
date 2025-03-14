@@ -1,8 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from dependencies.dependencies import get_current_user, get_user_service
+from exceptions.exceptions import (
+    RoleNotFoundException,
+    UserAlreadyExistsException,
+    UserNotFoundException,
+)
 from models.models import CreateUserDto, ReadUserDto, UpdateUserDto
 from services.user_service import UserService
 
@@ -16,8 +21,11 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def read_user(
     user: user_dependency, service: service_dependency, user_id: int = Path(gt=0)
 ):
-    user = service.get_user_by_id(user_id)
-    return user
+    try:
+        get_user = service.get_user_by_id(user_id)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    return get_user
 
 
 @router.get("", response_model=list[ReadUserDto], status_code=status.HTTP_200_OK)
@@ -30,7 +38,12 @@ async def read_users(user: user_dependency, service: service_dependency):
 async def create_user(
     user: user_dependency, service: service_dependency, create_user: CreateUserDto
 ):
-    created_user = service.create_user(create_user)
+    try:
+        created_user = service.create_user(create_user)
+    except UserAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except RoleNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     return f"api/v1/users/{created_user.id}"
 
 
@@ -41,7 +54,14 @@ async def update_user(
     update_user: UpdateUserDto,
     user_id: int = Path(gt=0),
 ):
-    service.update_user(user_id, update_user)
+    try:
+        service.update_user(user_id, update_user)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RoleNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except UserAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"User with id={user_id} updated."
 
 
@@ -49,5 +69,8 @@ async def update_user(
 async def delete_user(
     user: user_dependency, service: service_dependency, user_id: int = Path(gt=0)
 ):
-    service.delete_user(user_id)
+    try:
+        service.delete_user(user_id)
+    except UserNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return f"User with id={user_id} deleted."

@@ -3,6 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from dependencies.dependencies import get_current_user, get_item_category_service
+from exceptions.exceptions import (
+    CategoryAlreadyExistsException,
+    CategoryNotFoundException,
+)
 from models.models import (
     CreateItemCategoryDto,
     ReadItemCategoryDto,
@@ -22,11 +26,12 @@ async def read_item_category(
     service: service_dependency,
     item_category_id: int = Path(gt=0),
 ):
-    item_category = service.get_item_category_by_id(item_category_id)
-    if item_category is None:
+    try:
+        item_category = service.get_item_category_by_id(item_category_id)
+    except CategoryNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Item category with id={item_category_id} not found",
+            detail=str(e),
         )
     return item_category
 
@@ -43,7 +48,10 @@ async def create_item_category(
     service: service_dependency,
     create_item_category_dto: CreateItemCategoryDto,
 ):
-    created_item_category = service.create_item_category(create_item_category_dto)
+    try:
+        created_item_category = service.create_item_category(create_item_category_dto)
+    except CategoryAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"api/v1/item-categories/{created_item_category.id}"
 
 
@@ -54,7 +62,12 @@ async def update_item_category(
     item_category: UpdateItemCategoryDto,
     item_category_id: int = Path(gt=0),
 ):
-    service.update_category(item_category_id, item_category)
+    try:
+        service.update_category(item_category_id, item_category)
+    except CategoryNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CategoryAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"Item category with id={item_category_id} updated."
 
 
@@ -64,5 +77,8 @@ async def delete_item_category(
     service: service_dependency,
     item_category_id: int = Path(gt=0),
 ):
-    service.delete_category(item_category_id)
+    try:
+        service.delete_category(item_category_id)
+    except CategoryNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return f"Item category with id={item_category_id} deleted."

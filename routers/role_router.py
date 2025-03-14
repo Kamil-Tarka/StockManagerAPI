@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, status
 
 from dependencies.dependencies import get_current_user, get_role_service
+from exceptions.exceptions import RoleAlreadyExistsException, RoleNotFoundException
 from models.models import CreateRoleDto, ReadRoleDto, UpdateRoleDto
 from services.role_service import RoleService
 
@@ -16,7 +17,10 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def read_role(
     user: user_dependency, service: service_dependency, role_id: int = Path(gt=0)
 ):
-    role = service.get_role_by_id(role_id)
+    try:
+        role = service.get_role_by_id(role_id)
+    except RoleNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return role
 
 
@@ -30,7 +34,10 @@ async def read_all_roles(user: user_dependency, service: service_dependency):
 async def create_role(
     user: user_dependency, service: service_dependency, role: CreateRoleDto
 ):
-    created_role = service.create_role(role)
+    try:
+        created_role = service.create_role(role)
+    except RoleAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"api/v1/roles/{created_role.id}"
 
 
@@ -41,7 +48,12 @@ async def update_role(
     role: UpdateRoleDto,
     role_id: int = Path(gt=0),
 ):
-    service.update_role(role_id, role)
+    try:
+        service.update_role(role_id, role)
+    except RoleNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RoleAlreadyExistsException as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     return f"Role with id={role_id} updated."
 
 
@@ -49,5 +61,8 @@ async def update_role(
 async def delete_role(
     user: user_dependency, service: service_dependency, role_id: int = Path(gt=0)
 ):
-    service.delete_role(role_id)
+    try:
+        service.delete_role(role_id)
+    except RoleNotFoundException as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     return f"Role with id={role_id} deleted."

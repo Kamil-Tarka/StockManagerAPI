@@ -5,6 +5,7 @@ from jose import JWTError, jwt
 from starlette import status
 
 from app_settings import AppSettings
+from exceptions.exceptions import UserAccountIsDisabledException
 from models.models import LoginUserDto
 from services.user_service import UserService
 
@@ -17,6 +18,10 @@ class AuthService:
 
     def create_access_token(self, login_user_data: LoginUserDto):
         user = self.user_service.verify_user_password(login_user_data)
+        if user.is_active is False:
+            raise UserAccountIsDisabledException(
+                f"User with user_name={login_user_data.username} is disabled"
+            )
         expires = datetime.now(timezone.utc) + timedelta(
             minutes=self.app_settings.token_expiration_time
         )
@@ -42,9 +47,10 @@ class AuthService:
             user_id = payload.get("id")
             user = self.user_service.get_user_by_id(user_id)
             user_role = payload.get("role")
-            if user is None:
+            if user.is_active is False:
                 raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Inactive user",
                 )
             if user.user_name != subject:
                 raise HTTPException(
