@@ -52,7 +52,7 @@ class User(Base):
     first_name: Mapped[str] = mapped_column(String(50))
     last_name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(50))
-    is_active: Mapped[int] = mapped_column(Boolean, server_default=0)
+    is_active: Mapped[int] = mapped_column(Boolean, default=0)
     creation_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     last_modification_date: Mapped[datetime.datetime] = mapped_column(DateTime)
     role_id: Mapped[int] = mapped_column(Integer)

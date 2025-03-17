@@ -4,9 +4,9 @@ DEV_DB_NAME = "stock_manager.db"
 
 
 # Secret key
-SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4
+DEV_SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4
 
 # Token expiration time (minutes)
-TOKEN_EXPIRATION_TIME = 15
+DEV_TOKEN_EXPIRATION_TIME = 15
 # Token hash algorithm
-ALGORITHM = "HS256"
+DEV_ALGORITHM = "HS256"
