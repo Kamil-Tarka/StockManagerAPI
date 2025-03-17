@@ -40,9 +40,27 @@ class StockItemService:
             )
         return stock_item
 
+    def get_stock_item_by_name_and_category_id(
+        self, stock_item_name: str, category_id: int
+    ) -> StockItem | None:
+        stock_item = (
+            self.db.query(StockItem)
+            .filter(
+                StockItem.name == stock_item_name, StockItem.category_id == category_id
+            )
+            .first()
+        )
+        if stock_item is None:
+            raise StockItemNotFoundException(
+                f"Stock item with name={stock_item_name} and category_id={category_id} not found"
+            )
+        return stock_item
+
     def create_stock_item(self, create_stock_item_dto: CreateStockItemDto) -> StockItem:
         try:
-            stock_item = self.get_stock_item_by_name(create_stock_item_dto.name)
+            stock_item = self.get_stock_item_by_name_and_category_id(
+                create_stock_item_dto.name, create_stock_item_dto.category_id
+            )
         except StockItemNotFoundException:
             self.item_category_service.get_item_category_by_id(
                 create_stock_item_dto.category_id
@@ -70,7 +88,9 @@ class StockItemService:
         current_date = datetime.now(timezone.utc)
         if update_stock_item_dto.name and stock_item.name != update_stock_item_dto.name:
             try:
-                self.get_stock_item_by_name(update_stock_item_dto.name)
+                self.get_stock_item_by_name_and_category_id(
+                    update_stock_item_dto.name, update_stock_item_dto.category_id
+                )
             except StockItemNotFoundException:
                 stock_item.name = update_stock_item_dto.name
                 stock_item.last_modification_date = current_date
