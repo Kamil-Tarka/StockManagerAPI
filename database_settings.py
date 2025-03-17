@@ -1,34 +1,25 @@
-import os
-
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-if os.getenv("envirnoment") == "development":
-    load_dotenv(".envdev")
-    db_name = os.getenv("DEV_DB_NAME")
+from app_settings import AppSettings
+
+app_settings = AppSettings()
+
+if app_settings.envirnoment == "development":
+    db_name = app_settings.db_name
     SQLALCHEMY_DATABASE_URL = f"sqlite:///./{db_name}"
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
     )
-elif os.getenv("envirnoment") == "production":
-    load_dotenv()
-    db_host = os.getenv("DB_HOST")
-    db_user = os.getenv("DB_USER")
-    db_password = os.getenv("DB_PASSWORD")
-    db_name = os.getenv("DB_NAME")
-    charset = os.getenv("CHARSET")
+elif app_settings.envirnoment == "production":
+    db_host = app_settings.db_host
+    db_user = app_settings.db_user
+    db_password = app_settings.db_password
+    db_name = app_settings.db_name
+    charset = app_settings.charset
     SQLALCHEMY_DATABASE_URL = f"mariadb+pymysql://{db_user}:{db_password}@{db_host}/{db_name}?charset={charset}"
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
-
-
-def get_db_session() -> Session:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()

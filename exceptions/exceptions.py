@@ -36,3 +36,7 @@ class WrongPasswordException(Exception):
 
 class UserAccountIsDisabledException(Exception):
     pass
+
+
+class NoEnvirnomentVariableException(Exception):
+    pass
