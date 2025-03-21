@@ -21,6 +21,9 @@ class AppSettings:
             self._charset = os.getenv("DEV_CHARSET")
             self._secret_key = os.getenv("DEV_SECRET_KEY")
             self._token_expiration_time = int(os.getenv("DEV_TOKEN_EXPIRATION_TIME"))
+            self._refresh_token_expiration_time = int(
+                os.getenv("DEV_REFRESH_TOKEN_EXPIRATION_TIME")
+            )
             self._alghoritm = os.getenv("DEV_ALGORITHM")
         elif self._envirnoment == "production":
             load_dotenv()
@@ -31,6 +34,9 @@ class AppSettings:
             self._charset = os.getenv("CHARSET")
             self._secret_key = os.getenv("SECRET_KEY")
             self._token_expiration_time = int(os.getenv("TOKEN_EXPIRATION_TIME"))
+            self._refresh_token_expiration_time = int(
+                os.getenv("REFRESH_TOKEN_EXPIRATION_TIME")
+            )
             self._alghoritm = os.getenv("ALGORITHM")
 
     @property
@@ -54,6 +60,15 @@ class AppSettings:
             )
 
         return self._token_expiration_time
+
+    @property
+    def refresh_token_expiration_time(self):
+        if self._refresh_token_expiration_time is None:
+            raise NoEnvirnomentVariableException(
+                "No REFRESH_TOKEN_EXPIRATION_TIME variable found, REFRESH_TOKEN_EXPIRATION_TIME is required variable"
+            )
+
+        return self._refresh_token_expiration_time
 
     @property
     def token_algorithm(self):

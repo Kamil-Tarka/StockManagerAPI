@@ -120,6 +120,11 @@ class LoginUserDto(BaseModel):
     password: str = Field(..., min_length=8)
 
 
-class Token(BaseModel):
+class TokenResponse(BaseModel):
     access_token: str
     token_type: str
+    refresh_token: str
+
+
+class RefreshTokenBody(BaseModel):
+    refresh_token: str

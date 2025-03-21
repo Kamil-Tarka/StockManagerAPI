@@ -8,5 +8,6 @@ DEV_SECRET_KEY = kasrS3AAuvVffHP3e0SRhyl76xqeiXS4
 
 # Token expiration time (minutes)
 DEV_TOKEN_EXPIRATION_TIME = 15
+DEV_REFRESH_TOKEN_EXPIRATION_TIME = 30
 # Token hash algorithm
 DEV_ALGORITHM = "HS256"

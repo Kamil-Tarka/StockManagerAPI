@@ -11,3 +11,4 @@ pytest-asyncio
 jose
 sqlacodegen==3.0.0rc5
 python-jose
+PyJWT
