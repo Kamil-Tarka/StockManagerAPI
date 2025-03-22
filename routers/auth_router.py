@@ -5,9 +5,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from dependencies.dependencies import get_auth_service
 from exceptions.exceptions import (
+    InvalidCredentialsException,
+    InvalidRoleException,
+    TokenExpiredException,
     UserAccountIsDisabledException,
     UserNotFoundException,
     WrongPasswordException,
+    WrongTokenTypeException,
+    WrongUsernameException,
 )
 from models.models import LoginUserDto, RefreshTokenBody, TokenResponse
 from services.auth_service import AuthService
@@ -46,5 +51,17 @@ async def refresh_token(service: service_dependency, refresh_token: RefreshToken
     except UserAccountIsDisabledException as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     except WrongPasswordException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except WrongTokenTypeException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except InvalidRoleException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except WrongUsernameException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except WrongTokenTypeException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except InvalidCredentialsException as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+    except TokenExpiredException as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
     return new_token

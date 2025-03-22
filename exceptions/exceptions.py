@@ -40,3 +40,23 @@ class UserAccountIsDisabledException(Exception):
 
 class NoEnvirnomentVariableException(Exception):
     pass
+
+
+class InvalidRoleException(Exception):
+    pass
+
+
+class WrongUsernameException(Exception):
+    pass
+
+
+class WrongTokenTypeException(Exception):
+    pass
+
+
+class InvalidCredentialsException(Exception):
+    pass
+
+
+class TokenExpiredException(Exception):
+    pass

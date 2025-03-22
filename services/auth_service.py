@@ -6,7 +6,14 @@ from jose import JWTError
 from starlette import status
 
 from app_settings import AppSettings
-from exceptions.exceptions import UserAccountIsDisabledException
+from exceptions.exceptions import (
+    InvalidCredentialsException,
+    InvalidRoleException,
+    TokenExpiredException,
+    UserAccountIsDisabledException,
+    WrongTokenTypeException,
+    WrongUsernameException,
+)
 from models.entities import User
 from models.models import LoginUserDto, RefreshTokenBody, TokenResponse
 from services.role_service import RoleService
@@ -77,30 +84,18 @@ class AuthService:
                 algorithms=[self.app_settings.token_algorithm],
             )
             if payload.get("token_type") != "refresh":
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid token type",
-                )
+                raise WrongTokenTypeException(f"Invalid token type")
             subject: str = payload.get("sub")
             user_id = payload.get("id")
             user = self.user_service.get_user_by_id(user_id)
             user_role = payload.get("role")
             role = self.role_service.get_role_by_id(user_role.get("id"))
             if role.name != user_role.get("name"):
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid role",
-                )
+                raise InvalidRoleException(f"Roles do not match")
             if user.is_active is False:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Inactive user",
-                )
+                raise UserAccountIsDisabledException(f"User is disabled")
             if user.user_name != subject:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid credentials",
-                )
+                raise WrongUsernameException(f"Invalid username")
             access_token = self.create_access_token(user)
             new_refresh_token = self.create_refresh_token(user)
             return TokenResponse(
@@ -109,9 +104,9 @@ class AuthService:
                 refresh_token=new_refresh_token,
             )
         except JWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-            )
+            raise InvalidCredentialsException(f"Invalid credentials")
+        except jwt.ExpiredSignatureError:
+            raise TokenExpiredException(f"Token expired")
 
     def get_current_user(self, token: str):
         try:
