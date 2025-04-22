@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from passlib.context import CryptContext
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import (
@@ -9,8 +10,15 @@ from exceptions.exceptions import (
     UserNotFoundException,
     WrongPasswordException,
 )
-from models.entities import User
-from models.models import CreateUserDto, LoginUserDto, UpdateUserDto
+from models.entities import Role, User
+from models.models import (
+    CreateUserDto,
+    LoginUserDto,
+    PagedResult,
+    UpdateUserDto,
+    UserFilterQuery,
+)
+from Paginate.paginate import paginate
 from services.role_service import RoleService
 
 
@@ -26,9 +34,31 @@ class UserService:
             raise UserNotFoundException(f"User with id={user_id} not found")
         return user
 
-    def get_all_users(self) -> list[User]:
-        users = self.db.query(User).all()
-        return users
+    def get_all_users(self, filter_query: UserFilterQuery) -> PagedResult:
+        query = self.db.query(User).filter(and_(*filter_query.filter_list))
+        total_count = query.count()
+
+        if filter_query.sort_by == "role":
+            query = query.join(Role)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(Role.name.asc())
+            else:
+                query = query.order_by(Role.name.desc())
+        elif filter_query.sort_by is not None and hasattr(User, filter_query.sort_by):
+            column = getattr(User, filter_query.sort_by)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(column.asc())
+            else:
+                query = query.order_by(column.desc())
+        users = (
+            query.offset((filter_query.page - 1) * filter_query.page_size)
+            .limit(filter_query.page_size)
+            .all()
+        )
+        paged_result = paginate(
+            users, filter_query.page, filter_query.page_size, total_count
+        )
+        return paged_result
 
     def get_user_by_user_name(self, user_name: str) -> User | None:
         user = self.db.query(User).filter(User.user_name == user_name).first()

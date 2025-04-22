@@ -1,13 +1,20 @@
 from datetime import datetime, timezone
 
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import (
     StockItemAlreadyExistsException,
     StockItemNotFoundException,
 )
-from models.entities import StockItem
-from models.models import CreateStockItemDto, UpdateStockItemDto
+from models.entities import ItemCategory, StockItem
+from models.models import (
+    CreateStockItemDto,
+    PagedResult,
+    StockItemQuery,
+    UpdateStockItemDto,
+)
+from Paginate.paginate import paginate
 from services.item_category_service import ItemCategoryService
 
 
@@ -26,9 +33,33 @@ class StockItemService:
             )
         return stock_item
 
-    def get_all_stock_items(self) -> list[StockItem]:
-        stock_items = self.db.query(StockItem).all()
-        return stock_items
+    def get_all_stock_items(self, filter_query: StockItemQuery) -> PagedResult:
+        query = self.db.query(StockItem).filter(and_(*filter_query.filter_list))
+        total_count = query.count()
+
+        if filter_query.sort_by == "category":
+            query = query.join(ItemCategory)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(ItemCategory.name.asc())
+            else:
+                query = query.order_by(ItemCategory.name.desc())
+        elif filter_query.sort_by is not None and hasattr(
+            StockItem, filter_query.sort_by
+        ):
+            column = getattr(StockItem, filter_query.sort_by)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(column.asc())
+            else:
+                query = query.order_by(column.desc())
+        stock_items = (
+            query.offset((filter_query.page - 1) * filter_query.page_size)
+            .limit(filter_query.page_size)
+            .all()
+        )
+        paged_result = paginate(
+            stock_items, filter_query.page, filter_query.page_size, total_count
+        )
+        return paged_result
 
     def get_stock_item_by_name(self, stock_item_name: str) -> StockItem | None:
         stock_item = (

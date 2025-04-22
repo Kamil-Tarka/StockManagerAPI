@@ -1,10 +1,12 @@
 from datetime import datetime, timezone
 
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import RoleAlreadyExistsException, RoleNotFoundException
 from models.entities import Role
-from models.models import CreateRoleDto, UpdateRoleDto
+from models.models import CreateRoleDto, PagedResult, RoleFilterQuery, UpdateRoleDto
+from Paginate.paginate import paginate
 
 
 class RoleService:
@@ -17,9 +19,25 @@ class RoleService:
             raise RoleNotFoundException(f"Role with id={role_id} not found")
         return role
 
-    def get_all_roles(self) -> list[Role]:
-        roles = self.db.query(Role).all()
-        return roles
+    def get_all_roles(self, filter_query: RoleFilterQuery) -> PagedResult:
+        query = self.db.query(Role).filter(and_(*filter_query.filter_list))
+        total_count = query.count()
+
+        if filter_query.sort_by is not None and hasattr(Role, filter_query.sort_by):
+            column = getattr(Role, filter_query.sort_by)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(column.asc())
+            else:
+                query = query.order_by(column.desc())
+        roles = (
+            query.offset((filter_query.page - 1) * filter_query.page_size)
+            .limit(filter_query.page_size)
+            .all()
+        )
+        paged_result = paginate(
+            roles, filter_query.page, filter_query.page_size, total_count
+        )
+        return paged_result
 
     def get_role_by_name(self, role_name: str) -> Role | None:
         role = self.db.query(Role).filter(Role.name == role_name).first()

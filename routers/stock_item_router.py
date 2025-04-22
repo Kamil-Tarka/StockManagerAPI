@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from dependencies.dependencies import get_current_user, get_stock_item_service
 from exceptions.exceptions import (
@@ -8,7 +8,13 @@ from exceptions.exceptions import (
     StockItemAlreadyExistsException,
     StockItemNotFoundException,
 )
-from models.models import CreateStockItemDto, ReadStockItemDto, UpdateStockItemDto
+from models.models import (
+    CreateStockItemDto,
+    PagedResult,
+    ReadStockItemDto,
+    StockItemQuery,
+    UpdateStockItemDto,
+)
 from services.stock_item_service import StockItemService
 
 router = APIRouter(prefix="/stock-items", tags=["stock-items"])
@@ -30,9 +36,15 @@ async def read_stock_item(
     return stock_item_model
 
 
-@router.get("", response_model=list[ReadStockItemDto], status_code=status.HTTP_200_OK)
-async def read_all_stock_items(user: user_dependency, service: service_dependency):
-    stock_items = service.get_all_stock_items()
+@router.get(
+    "", response_model=PagedResult[ReadStockItemDto], status_code=status.HTTP_200_OK
+)
+async def read_all_stock_items(
+    filter_query: Annotated[StockItemQuery, Query()],
+    user: user_dependency,
+    service: service_dependency,
+):
+    stock_items = service.get_all_stock_items(filter_query)
     return stock_items
 
 

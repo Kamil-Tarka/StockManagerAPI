@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from exceptions.exceptions import (
@@ -7,7 +8,13 @@ from exceptions.exceptions import (
     CategoryNotFoundException,
 )
 from models.entities import ItemCategory
-from models.models import CreateItemCategoryDto, UpdateItemCategoryDto
+from models.models import (
+    CreateItemCategoryDto,
+    ItemCategoryFilterQuery,
+    PagedResult,
+    UpdateItemCategoryDto,
+)
+from Paginate.paginate import paginate
 
 
 class ItemCategoryService:
@@ -26,9 +33,30 @@ class ItemCategoryService:
             )
         return item_category
 
-    def get_all_item_categories(self) -> list[ItemCategory]:
-        item_categories = self.db.query(ItemCategory).all()
-        return item_categories
+    def get_all_item_categories(
+        self, filter_query: ItemCategoryFilterQuery
+    ) -> PagedResult:
+        query = self.db.query(ItemCategory).filter(and_(*filter_query.filter_list))
+        total_count = query.count()
+
+        if filter_query.sort_by is not None and hasattr(
+            ItemCategory, filter_query.sort_by
+        ):
+            column = getattr(ItemCategory, filter_query.sort_by)
+            if filter_query.sort_direction == "asc":
+                query = query.order_by(column.asc())
+            else:
+                query = query.order_by(column.desc())
+
+        item_categories = (
+            query.offset((filter_query.page - 1) * filter_query.page_size)
+            .limit(filter_query.page_size)
+            .all()
+        )
+        paged_result = paginate(
+            item_categories, filter_query.page, filter_query.page_size, total_count
+        )
+        return paged_result
 
     def get_category_by_name(self, category_name: str) -> ItemCategory | None:
         item_category = (

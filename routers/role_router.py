@@ -1,10 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from dependencies.dependencies import get_current_user, get_role_service
 from exceptions.exceptions import RoleAlreadyExistsException, RoleNotFoundException
-from models.models import CreateRoleDto, ReadRoleDto, UpdateRoleDto
+from models.models import (
+    CreateRoleDto,
+    PagedResult,
+    ReadRoleDto,
+    RoleFilterQuery,
+    UpdateRoleDto,
+)
 from services.role_service import RoleService
 
 router = APIRouter(prefix="/roles", tags=["roles"])
@@ -24,9 +30,13 @@ async def read_role(
     return role
 
 
-@router.get("", response_model=list[ReadRoleDto], status_code=status.HTTP_200_OK)
-async def read_all_roles(user: user_dependency, service: service_dependency):
-    roles = service.get_all_roles()
+@router.get("", response_model=PagedResult[ReadRoleDto], status_code=status.HTTP_200_OK)
+async def read_all_roles(
+    filter_query: Annotated[RoleFilterQuery, Query()],
+    user: user_dependency,
+    service: service_dependency,
+):
+    roles = service.get_all_roles(filter_query)
     return roles
 
 

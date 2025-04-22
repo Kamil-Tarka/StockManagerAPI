@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from dependencies.dependencies import get_current_user, get_user_service
 from exceptions.exceptions import (
@@ -8,7 +8,13 @@ from exceptions.exceptions import (
     UserAlreadyExistsException,
     UserNotFoundException,
 )
-from models.models import CreateUserDto, ReadUserDto, UpdateUserDto
+from models.models import (
+    CreateUserDto,
+    PagedResult,
+    ReadUserDto,
+    UpdateUserDto,
+    UserFilterQuery,
+)
 from services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -28,9 +34,14 @@ async def read_user(
     return get_user
 
 
-@router.get("", response_model=list[ReadUserDto], status_code=status.HTTP_200_OK)
-async def read_users(user: user_dependency, service: service_dependency):
-    users = service.get_all_users()
+@router.get("", response_model=PagedResult[ReadUserDto], status_code=status.HTTP_200_OK)
+async def read_users(
+    filter_query: Annotated[UserFilterQuery, Query()],
+    user: user_dependency,
+    service: service_dependency,
+):
+    users = service.get_all_users(filter_query)
+
     return users
 
 

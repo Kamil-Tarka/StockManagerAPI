@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 
 from dependencies.dependencies import get_current_user, get_item_category_service
 from exceptions.exceptions import (
@@ -9,6 +9,8 @@ from exceptions.exceptions import (
 )
 from models.models import (
     CreateItemCategoryDto,
+    ItemCategoryFilterQuery,
+    PagedResult,
     ReadItemCategoryDto,
     UpdateItemCategoryDto,
 )
@@ -36,9 +38,13 @@ async def read_item_category(
     return item_category
 
 
-@router.get("", response_model=list[ReadItemCategoryDto], status_code=200)
-async def read_all_item_categories(user: user_dependency, service: service_dependency):
-    item_categories = service.get_all_item_categories()
+@router.get("", response_model=PagedResult[ReadItemCategoryDto], status_code=200)
+async def read_all_item_categories(
+    filter_query: Annotated[ItemCategoryFilterQuery, Query()],
+    user: user_dependency,
+    service: service_dependency,
+):
+    item_categories = service.get_all_item_categories(filter_query)
     return item_categories
 
 
