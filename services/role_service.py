@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 from exceptions.exceptions import RoleAlreadyExistsException, RoleNotFoundException
 from models.entities import Role
 from models.models import CreateRoleDto, PagedResult, RoleFilterQuery, UpdateRoleDto
-from Paginate.paginate import paginate
+from paginate.paginate import paginate
 
 
 class RoleService:
@@ -50,7 +51,7 @@ class RoleService:
             role = self.get_role_by_name(create_role_dto.name)
         except RoleNotFoundException:
             role = Role(**create_role_dto.model_dump())
-            current_date = datetime.now(timezone.utc)
+            current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
             role.creation_date = current_date
             role.last_modification_date = current_date
             self.db.add(role)
@@ -69,7 +70,7 @@ class RoleService:
         except RoleNotFoundException:
             if update_role_dto and role.name != update_role_dto.name:
                 role.name = update_role_dto.name
-                role.last_modification_date = datetime.now(timezone.utc)
+                role.last_modification_date = datetime.now(ZoneInfo("Europe/Warsaw"))
                 self.db.commit()
                 self.db.refresh(role)
             return role
@@ -84,3 +85,9 @@ class RoleService:
         self.db.delete(role)
         self.db.commit()
         return role
+
+    def check_if_table_is_empty(self) -> bool:
+        query = self.db.query(Role)
+        if query.count() == 0:
+            return True
+        return False

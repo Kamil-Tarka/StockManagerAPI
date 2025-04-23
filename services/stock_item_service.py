@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -14,7 +15,7 @@ from models.models import (
     StockItemQuery,
     UpdateStockItemDto,
 )
-from Paginate.paginate import paginate
+from paginate.paginate import paginate
 from services.item_category_service import ItemCategoryService
 
 
@@ -98,7 +99,7 @@ class StockItemService:
             )
 
             stock_item = StockItem(**create_stock_item_dto.model_dump())
-            current_date = datetime.now(timezone.utc)
+            current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
             stock_item.creation_date = current_date
             stock_item.last_modification_date = current_date
             self.db.add(stock_item)
@@ -116,7 +117,7 @@ class StockItemService:
         update_stock_item_dto: UpdateStockItemDto,
     ) -> StockItem:
         stock_item = self.get_stock_item_by_id(stock_item_id)
-        current_date = datetime.now(timezone.utc)
+        current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
         if update_stock_item_dto.name and stock_item.name != update_stock_item_dto.name:
             try:
                 self.get_stock_item_by_name_and_category_id(
@@ -160,3 +161,9 @@ class StockItemService:
         self.db.delete(stock_item)
         self.db.commit()
         return True
+
+    def check_if_table_is_empty(self) -> bool:
+        query = self.db.query(StockItem)
+        if query.count() == 0:
+            return True
+        return False

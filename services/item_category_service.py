@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -14,7 +15,7 @@ from models.models import (
     PagedResult,
     UpdateItemCategoryDto,
 )
-from Paginate.paginate import paginate
+from paginate.paginate import paginate
 
 
 class ItemCategoryService:
@@ -77,7 +78,7 @@ class ItemCategoryService:
             item_category = self.get_category_by_name(create_item_category.name)
         except CategoryNotFoundException:
             item_category = ItemCategory(**create_item_category.model_dump())
-            current_date = datetime.now(timezone.utc)
+            current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
             item_category.creation_date = current_date
             item_category.last_modification_date = current_date
             self.db.add(item_category)
@@ -103,7 +104,9 @@ class ItemCategoryService:
                 and item_category.name != update_item_category_dto.name
             ):
                 item_category.name = update_item_category_dto.name
-                item_category.last_modification_date = datetime.now(timezone.utc)
+                item_category.last_modification_date = datetime.now(
+                    ZoneInfo("Europe/Warsaw")
+                )
                 self.db.commit()
                 self.db.refresh(item_category)
         else:
@@ -118,3 +121,9 @@ class ItemCategoryService:
         self.db.delete(item_category)
         self.db.commit()
         return True
+
+    def check_if_table_is_empty(self) -> bool:
+        query = self.db.query(ItemCategory)
+        if query.count() == 0:
+            return True
+        return False

@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from passlib.context import CryptContext
 from sqlalchemy import and_
@@ -18,7 +19,7 @@ from models.models import (
     UpdateUserDto,
     UserFilterQuery,
 )
-from Paginate.paginate import paginate
+from paginate.paginate import paginate
 from services.role_service import RoleService
 
 
@@ -85,7 +86,7 @@ class UserService:
                 user.hashed_password = self.bcrypt_context.hash(
                     create_user_dto.password
                 )
-                current_date = datetime.now(timezone.utc)
+                current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
                 user.creation_date = current_date
                 user.last_modification_date = current_date
                 user.is_active = True
@@ -104,7 +105,7 @@ class UserService:
 
     def update_user(self, user_id: int, update_user_dto: UpdateUserDto) -> User:
         user = self.get_user_by_id(user_id)
-        current_date = datetime.now(timezone.utc)
+        current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
 
         if update_user_dto.user_name and user.user_name != update_user_dto.user_name:
             try:
@@ -166,3 +167,9 @@ class UserService:
         if not self.bcrypt_context.verify(login_data.password, user.hashed_password):
             raise WrongPasswordException("Wrong password")
         return user
+
+    def check_if_table_is_empty(self) -> bool:
+        query = self.db.query(User)
+        if query.count() == 0:
+            return True
+        return False

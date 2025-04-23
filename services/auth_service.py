@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import jwt
 from fastapi import HTTPException
@@ -28,7 +29,7 @@ class AuthService:
         self.app_settings = AppSettings()
 
     def create_access_token(self, user: User):
-        expires = datetime.now(timezone.utc) + timedelta(
+        expires = datetime.now(ZoneInfo("Europe/Warsaw")) + timedelta(
             minutes=self.app_settings.token_expiration_time
         )
         to_encode = {
@@ -45,7 +46,7 @@ class AuthService:
         )
 
     def create_refresh_token(self, user: User):
-        expires = datetime.now(timezone.utc) + timedelta(
+        expires = datetime.now(ZoneInfo("Europe/Warsaw")) + timedelta(
             minutes=self.app_settings.refresh_token_expiration_time
         )
         to_encode = {

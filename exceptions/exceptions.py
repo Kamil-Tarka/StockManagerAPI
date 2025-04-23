@@ -22,6 +22,10 @@ class RoleAlreadyExistsException(Exception):
     pass
 
 
+class RoleNotCreatedException(Exception):
+    pass
+
+
 class UserNotFoundException(Exception):
     pass
 
@@ -35,6 +39,10 @@ class WrongPasswordException(Exception):
 
 
 class UserAccountIsDisabledException(Exception):
+    pass
+
+
+class UserNotCreatedException(Exception):
     pass
 
 

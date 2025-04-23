@@ -1,5 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
+from app_initializer.app_initializer import AppInitializer
 from database_settings import engine
 from models.entities import Base
 from routers import (
@@ -14,6 +15,9 @@ app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
 
+app_initializer = AppInitializer()
+app_initializer.initialize()
+
 main_router = APIRouter(prefix="/api/v1")
 
 main_router.include_router(stock_item_router.router)
@@ -27,4 +31,4 @@ app.include_router(main_router)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "App is running"}
