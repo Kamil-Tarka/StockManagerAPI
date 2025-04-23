@@ -75,3 +75,4 @@ class AppInitializer:
         if not self.verify_if_tables_have_content():
             print("Database is empty, please provide required information")
             return self.seed()
+        self.db.close()
