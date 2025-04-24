@@ -1,7 +1,9 @@
 from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app_initializer.app_initializer import AppInitializer
 from database_settings import engine
+from logger.logger import logger, logging_middleware
 from models.entities import Base
 from routers import (
     auth_router,
@@ -12,6 +14,20 @@ from routers import (
 )
 
 app = FastAPI()
+logger.info("Starting application...")
+
+# Add middlewares
+app.middleware("http")(logging_middleware)
+
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 Base.metadata.create_all(bind=engine)
 
