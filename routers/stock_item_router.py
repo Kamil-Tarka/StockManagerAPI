@@ -29,6 +29,17 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def read_stock_item(
     user: user_dependency, service: service_dependency, stock_item_id: int = Path(gt=0)
 ):
+    """
+    Return a stock item by ID.
+    Args:
+        user: Current user dependency.
+        service: Stock item service dependency.
+        stock_item_id (int): ID of the stock item to return.
+    Returns:
+        ReadStockItemDto: Stock item data.
+    Raises:
+        HTTPException: If stock item is not found.
+    """
     try:
         stock_item_model = service.get_stock_item_by_id(stock_item_id)
     except StockItemNotFoundException as e:
@@ -44,6 +55,15 @@ async def read_all_stock_items(
     user: user_dependency,
     service: service_dependency,
 ):
+    """
+    Return a paginated list of stock items with optional filtering.
+    Args:
+        filter_query (StockItemQuery): Filtering and pagination options.
+        user: Current user dependency.
+        service: Stock item service dependency.
+    Returns:
+        PagedResult[ReadStockItemDto]: Paginated stock item data.
+    """
     stock_items = service.get_all_stock_items(filter_query)
     return stock_items
 
@@ -54,6 +74,17 @@ async def create_stock_item(
     service: service_dependency,
     create_stock_item_dto: CreateStockItemDto,
 ):
+    """
+    Create a new stock item.
+    Args:
+        user: Current user dependency.
+        service: Stock item service dependency.
+        create_stock_item_dto (CreateStockItemDto): Data for the new stock item.
+    Returns:
+        str: Location of the created stock item resource.
+    Raises:
+        HTTPException: If stock item already exists or category not found.
+    """
     try:
         created_stock_item = service.create_stock_item(create_stock_item_dto)
     except StockItemAlreadyExistsException as e:
@@ -70,6 +101,18 @@ async def update_stock_item(
     update_stock_item: UpdateStockItemDto,
     stock_item_id: int = Path(gt=0),
 ):
+    """
+    Update an existing stock item.
+    Args:
+        user: Current user dependency.
+        service: Stock item service dependency.
+        update_stock_item (UpdateStockItemDto): Data to update.
+        stock_item_id (int): ID of the stock item to update.
+    Returns:
+        str: Update confirmation message.
+    Raises:
+        HTTPException: If stock item not found, category not found, or stock item already exists.
+    """
     try:
         service.update_stock_item(stock_item_id, update_stock_item)
     except StockItemNotFoundException as e:
@@ -85,6 +128,17 @@ async def update_stock_item(
 async def delete_stock_item(
     user: user_dependency, service: service_dependency, stock_item_id: int = Path(gt=0)
 ):
+    """
+    Delete a stock item by ID.
+    Args:
+        user: Current user dependency.
+        service: Stock item service dependency.
+        stock_item_id (int): ID of the stock item to delete.
+    Returns:
+        str: Deletion confirmation message.
+    Raises:
+        HTTPException: If stock item not found.
+    """
     try:
         service.delete_stock_item(stock_item_id)
     except StockItemNotFoundException as e:

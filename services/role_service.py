@@ -9,18 +9,47 @@ from models.entities import Role
 from models.models import CreateRoleDto, PagedResult, RoleFilterQuery, UpdateRoleDto
 from paginate.paginate import paginate
 
+"""
+Service for managing role operations, including CRUD, filtering, and business logic.
+"""
+
 
 class RoleService:
+    """
+    Provides role management operations such as create, read, update, delete, and filtering.
+    """
+
     def __init__(self, db: Session):
+        """
+        Initialize RoleService with a database session.
+        Args:
+            db (Session): SQLAlchemy session object.
+        """
         self.db = db
 
     def get_role_by_id(self, role_id: int) -> Role | None:
+        """
+        Return a role by its unique ID.
+        Args:
+            role_id (int): The role's ID.
+        Returns:
+            Role: The role object if found.
+        Raises:
+            RoleNotFoundException: If role is not found.
+        """
         role = self.db.query(Role).filter(Role.id == role_id).first()
         if role is None:
             raise RoleNotFoundException(f"Role with id={role_id} not found")
         return role
 
     def get_all_roles(self, filter_query: RoleFilterQuery) -> PagedResult:
+        """
+        Return all roles matching the filter query, with pagination and sorting.
+        Args:
+            filter_query (RoleFilterQuery): Filtering and pagination options.
+        Returns:
+            PagedResult: Paginated result of roles.
+        """
         query = self.db.query(Role).filter(and_(*filter_query.filter_list))
         total_count = query.count()
 
@@ -41,12 +70,30 @@ class RoleService:
         return paged_result
 
     def get_role_by_name(self, role_name: str) -> Role | None:
+        """
+        Return a role by its name.
+        Args:
+            role_name (str): The role's name.
+        Returns:
+            Role: The role object if found.
+        Raises:
+            RoleNotFoundException: If role is not found.
+        """
         role = self.db.query(Role).filter(Role.name == role_name).first()
         if role is None:
             raise RoleNotFoundException(f"Role with name={role_name} not found")
         return role
 
     def create_role(self, create_role_dto: CreateRoleDto) -> Role:
+        """
+        Create a new role in the database.
+        Args:
+            create_role_dto (CreateRoleDto): Data for the new role.
+        Returns:
+            Role: The created role object.
+        Raises:
+            RoleAlreadyExistsException: If role already exists.
+        """
         try:
             role = self.get_role_by_name(create_role_dto.name)
         except RoleNotFoundException:
@@ -64,6 +111,16 @@ class RoleService:
             )
 
     def update_role(self, role_id: int, update_role_dto: UpdateRoleDto) -> Role:
+        """
+        Update an existing role's information.
+        Args:
+            role_id (int): The role's ID.
+            update_role_dto (UpdateRoleDto): Data to update.
+        Returns:
+            Role: The updated role object.
+        Raises:
+            RoleAlreadyExistsException: If role already exists.
+        """
         role = self.get_role_by_id(role_id)
         try:
             self.get_role_by_name(update_role_dto.name)
@@ -80,6 +137,13 @@ class RoleService:
             )
 
     def delete_role(self, role_id: int) -> Role:
+        """
+        Delete a role by its ID.
+        Args:
+            role_id (int): The role's ID.
+        Returns:
+            Role: The deleted role object.
+        """
         role = self.get_role_by_id(role_id)
 
         self.db.delete(role)
@@ -87,6 +151,11 @@ class RoleService:
         return role
 
     def check_if_table_is_empty(self) -> bool:
+        """
+        Check if the role table is empty.
+        Returns:
+            bool: True if empty, False otherwise.
+        """
         query = self.db.query(Role)
         if query.count() == 0:
             return True

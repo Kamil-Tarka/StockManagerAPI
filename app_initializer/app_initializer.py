@@ -10,7 +10,14 @@ from services.user_service import UserService
 
 
 class AppInitializer:
+    """
+    Initializes the application by seeding the database if necessary.
+    """
+
     def __init__(self):
+        """
+        Initializes the AppInitializer with database session and service instances.
+        """
         self.db: Session = SessionLocal()
         self.user_service = UserService(self.db)
         self.role_service = RoleService(self.db)
@@ -18,6 +25,11 @@ class AppInitializer:
         self.stock_item_service = StockItemService(self.db)
 
     def verify_if_tables_have_content(self):
+        """
+        Checks if the main tables (users, roles, item categories, stock items) have any content.
+        Returns:
+            bool: True if any table has content, False if all are empty.
+        """
         users_is_empty = self.user_service.check_if_table_is_empty()
         roles_is_empty = self.role_service.check_if_table_is_empty()
         item_categories_is_empty = self.item_category_service.check_if_table_is_empty()
@@ -32,6 +44,12 @@ class AppInitializer:
         return True
 
     def seed(self):
+        """
+        Seeds the database with an admin role and an administrator user, prompting for user details.
+        Raises:
+            RoleNotCreatedException: If the admin role cannot be created.
+            UserNotCreatedException: If the admin user cannot be created.
+        """
         create_admin_role_dto = CreateRoleDto(
             name="admin",
             description="Administrator role with full access",
@@ -72,6 +90,10 @@ class AppInitializer:
         print("#################################################")
 
     def initialize(self):
+        """
+        Initializes the application by checking if the database is empty and seeding if necessary.
+        Closes the database session after initialization.
+        """
         if not self.verify_if_tables_have_content():
             print("Database is empty, please provide required information")
             return self.seed()

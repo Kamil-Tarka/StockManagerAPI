@@ -23,6 +23,17 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 async def read_role(
     user: user_dependency, service: service_dependency, role_id: int = Path(gt=0)
 ):
+    """
+    Return a role by ID.
+    Args:
+        user: Current user dependency.
+        service: Role service dependency.
+        role_id (int): ID of the role to return.
+    Returns:
+        ReadRoleDto: Role data.
+    Raises:
+        HTTPException: If role is not found.
+    """
     try:
         role = service.get_role_by_id(role_id)
     except RoleNotFoundException as e:
@@ -36,6 +47,15 @@ async def read_all_roles(
     user: user_dependency,
     service: service_dependency,
 ):
+    """
+    Return a paginated list of roles with optional filtering.
+    Args:
+        filter_query (RoleFilterQuery): Filtering and pagination options.
+        user: Current user dependency.
+        service: Role service dependency.
+    Returns:
+        PagedResult[ReadRoleDto]: Paginated role data.
+    """
     roles = service.get_all_roles(filter_query)
     return roles
 
@@ -44,6 +64,17 @@ async def read_all_roles(
 async def create_role(
     user: user_dependency, service: service_dependency, role: CreateRoleDto
 ):
+    """
+    Create a new role.
+    Args:
+        user: Current user dependency.
+        service: Role service dependency.
+        role (CreateRoleDto): Data for the new role.
+    Returns:
+        str: Location of the created role resource.
+    Raises:
+        HTTPException: If role already exists.
+    """
     try:
         created_role = service.create_role(role)
     except RoleAlreadyExistsException as e:
@@ -58,6 +89,18 @@ async def update_role(
     role: UpdateRoleDto,
     role_id: int = Path(gt=0),
 ):
+    """
+    Update an existing role.
+    Args:
+        user: Current user dependency.
+        service: Role service dependency.
+        role (UpdateRoleDto): Data to update.
+        role_id (int): ID of the role to update.
+    Returns:
+        str: Update confirmation message.
+    Raises:
+        HTTPException: If role not found or already exists.
+    """
     try:
         service.update_role(role_id, role)
     except RoleNotFoundException as e:
@@ -71,6 +114,17 @@ async def update_role(
 async def delete_role(
     user: user_dependency, service: service_dependency, role_id: int = Path(gt=0)
 ):
+    """
+    Delete a role by ID.
+    Args:
+        user: Current user dependency.
+        service: Role service dependency.
+        role_id (int): ID of the role to delete.
+    Returns:
+        str: Deletion confirmation message.
+    Raises:
+        HTTPException: If role not found.
+    """
     try:
         service.delete_role(role_id)
     except RoleNotFoundException as e:

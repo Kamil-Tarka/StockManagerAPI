@@ -22,20 +22,49 @@ from models.models import (
 from paginate.paginate import paginate
 from services.role_service import RoleService
 
+"""
+Service for managing user-related operations, including CRUD, authentication, and filtering.
+"""
+
 
 class UserService:
+    """
+    Provides user management operations such as create, read, update, delete, and authentication.
+    """
+
     def __init__(self, db: Session):
+        """
+        Initialize UserService with a database session.
+        Args:
+            db (Session): SQLAlchemy session object.
+        """
         self.db = db
         self.bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.role_service = RoleService(db)
 
     def get_user_by_id(self, user_id: int) -> User | None:
+        """
+        Return a user by their unique ID.
+        Args:
+            user_id (int): The user's ID.
+        Returns:
+            User: The user object if found.
+        Raises:
+            UserNotFoundException: If user is not found.
+        """
         user = self.db.query(User).filter(User.id == user_id).first()
         if user is None:
             raise UserNotFoundException(f"User with id={user_id} not found")
         return user
 
     def get_all_users(self, filter_query: UserFilterQuery) -> PagedResult:
+        """
+        Return all users matching the filter query, with pagination and sorting.
+        Args:
+            filter_query (UserFilterQuery): Filtering and pagination options.
+        Returns:
+            PagedResult: Paginated result of users.
+        """
         query = self.db.query(User).filter(and_(*filter_query.filter_list))
         total_count = query.count()
 
@@ -62,18 +91,45 @@ class UserService:
         return paged_result
 
     def get_user_by_user_name(self, user_name: str) -> User | None:
+        """
+        Return a user by their username.
+        Args:
+            user_name (str): The user's username.
+        Returns:
+            User: The user object if found.
+        Raises:
+            UserNotFoundException: If user is not found.
+        """
         user = self.db.query(User).filter(User.user_name == user_name).first()
         if user is None:
             raise UserNotFoundException(f"User with user_name={user_name} not found")
         return user
 
     def get_user_by_email(self, email: str) -> User | None:
+        """
+        Return a user by their email address.
+        Args:
+            email (str): The user's email.
+        Returns:
+            User: The user object if found.
+        Raises:
+            UserNotFoundException: If user is not found.
+        """
         user = self.db.query(User).filter(User.email == email).first()
         if user is None:
             raise UserNotFoundException(f"User with email={email} not found")
         return user
 
     def create_user(self, create_user_dto: CreateUserDto) -> User:
+        """
+        Create a new user in the database.
+        Args:
+            create_user_dto (CreateUserDto): Data for the new user.
+        Returns:
+            User: The created user object.
+        Raises:
+            UserAlreadyExistsException: If user with username or email already exists.
+        """
         try:
             user = self.get_user_by_user_name(create_user_dto.user_name)
         except UserNotFoundException:
@@ -104,6 +160,16 @@ class UserService:
             )
 
     def update_user(self, user_id: int, update_user_dto: UpdateUserDto) -> User:
+        """
+        Update an existing user's information.
+        Args:
+            user_id (int): The user's ID.
+            update_user_dto (UpdateUserDto): Data to update.
+        Returns:
+            User: The updated user object.
+        Raises:
+            UserAlreadyExistsException: If username or email already exists.
+        """
         user = self.get_user_by_id(user_id)
         current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
 
@@ -152,6 +218,13 @@ class UserService:
         return user
 
     def delete_user(self, user_id: int) -> User:
+        """
+        Delete a user by their ID.
+        Args:
+            user_id (int): The user's ID.
+        Returns:
+            User: The deleted user object.
+        """
         user = self.get_user_by_id(user_id)
 
         self.db.delete(user)
@@ -159,6 +232,16 @@ class UserService:
         return user
 
     def verify_user_password(self, login_data: LoginUserDto) -> User:
+        """
+        Verify a user's password for authentication.
+        Args:
+            login_data (LoginUserDto): Login credentials.
+        Returns:
+            User: The authenticated user object.
+        Raises:
+            UserAccountIsDisabledException: If user is disabled.
+            WrongPasswordException: If password is incorrect.
+        """
         user = self.get_user_by_user_name(login_data.username)
         if user.is_active is False:
             raise UserAccountIsDisabledException(
@@ -169,6 +252,11 @@ class UserService:
         return user
 
     def check_if_table_is_empty(self) -> bool:
+        """
+        Check if the user table is empty.
+        Returns:
+            bool: True if empty, False otherwise.
+        """
         query = self.db.query(User)
         if query.count() == 0:
             return True

@@ -20,15 +20,35 @@ from models.models import LoginUserDto, RefreshTokenBody, TokenResponse
 from services.role_service import RoleService
 from services.user_service import UserService
 
+"""
+Service for authentication, token management, and user session validation.
+"""
+
 
 class AuthService:
+    """
+    Provides authentication operations, including login, token creation, refresh, and user validation.
+    """
+
     def __init__(self, db):
+        """
+        Initialize AuthService with a database session.
+        Args:
+            db: SQLAlchemy session object.
+        """
         self.db = db
         self.user_service = UserService(db)
         self.role_service = RoleService(db)
         self.app_settings = AppSettings()
 
     def create_access_token(self, user: User):
+        """
+        Create a JWT access token for a user.
+        Args:
+            user (User): The user object.
+        Returns:
+            str: Encoded JWT access token.
+        """
         expires = datetime.now(ZoneInfo("Europe/Warsaw")) + timedelta(
             minutes=self.app_settings.token_expiration_time
         )
@@ -46,6 +66,13 @@ class AuthService:
         )
 
     def create_refresh_token(self, user: User):
+        """
+        Create a JWT refresh token for a user.
+        Args:
+            user (User): The user object.
+        Returns:
+            str: Encoded JWT refresh token.
+        """
         expires = datetime.now(ZoneInfo("Europe/Warsaw")) + timedelta(
             minutes=self.app_settings.refresh_token_expiration_time
         )
@@ -64,6 +91,15 @@ class AuthService:
         )
 
     def login_user(self, login_user_data: LoginUserDto) -> TokenResponse:
+        """
+        Authenticate a user and return access and refresh tokens.
+        Args:
+            login_user_data (LoginUserDto): Login credentials.
+        Returns:
+            TokenResponse: Access and refresh tokens.
+        Raises:
+            UserAccountIsDisabledException: If user is disabled.
+        """
         user = self.user_service.verify_user_password(login_user_data)
         if user.is_active is False:
             raise UserAccountIsDisabledException(
@@ -78,6 +114,20 @@ class AuthService:
         )
 
     def refresh_user_token(self, refresh_token: RefreshTokenBody) -> TokenResponse:
+        """
+        Refresh a user's access and refresh tokens using a valid refresh token.
+        Args:
+            refresh_token (RefreshTokenBody): The refresh token data.
+        Returns:
+            TokenResponse: New access and refresh tokens.
+        Raises:
+            WrongTokenTypeException: If token type is invalid.
+            InvalidRoleException: If user role does not match.
+            UserAccountIsDisabledException: If user is disabled.
+            WrongUsernameException: If username does not match.
+            InvalidCredentialsException: If credentials are invalid.
+            TokenExpiredException: If token is expired.
+        """
         try:
             payload = jwt.decode(
                 refresh_token.refresh_token,
@@ -110,6 +160,15 @@ class AuthService:
             raise TokenExpiredException(f"Token expired")
 
     def get_current_user(self, token: str):
+        """
+        Validate and return the current user from a JWT access token.
+        Args:
+            token (str): JWT access token.
+        Returns:
+            dict: User information (id, user_name, role).
+        Raises:
+            HTTPException: If token is invalid, expired, or user is inactive.
+        """
         try:
             payload = jwt.decode(
                 token,

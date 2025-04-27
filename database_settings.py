@@ -1,3 +1,8 @@
+"""
+Database configuration module that sets up SQLAlchemy engine and session based on environment.
+Supports both SQLite for development and MariaDB for production environments.
+"""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 

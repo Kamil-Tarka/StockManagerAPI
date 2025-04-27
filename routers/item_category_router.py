@@ -28,6 +28,17 @@ async def read_item_category(
     service: service_dependency,
     item_category_id: int = Path(gt=0),
 ):
+    """
+    Return an item category by ID.
+    Args:
+        user: Current user dependency.
+        service: Item category service dependency.
+        item_category_id (int): ID of the item category to return.
+    Returns:
+        ReadItemCategoryDto: Item category data.
+    Raises:
+        HTTPException: If item category is not found.
+    """
     try:
         item_category = service.get_item_category_by_id(item_category_id)
     except CategoryNotFoundException as e:
@@ -44,6 +55,15 @@ async def read_all_item_categories(
     user: user_dependency,
     service: service_dependency,
 ):
+    """
+    Return a paginated list of item categories with optional filtering.
+    Args:
+        filter_query (ItemCategoryFilterQuery): Filtering and pagination options.
+        user: Current user dependency.
+        service: Item category service dependency.
+    Returns:
+        PagedResult[ReadItemCategoryDto]: Paginated item category data.
+    """
     item_categories = service.get_all_item_categories(filter_query)
     return item_categories
 
@@ -54,6 +74,17 @@ async def create_item_category(
     service: service_dependency,
     create_item_category_dto: CreateItemCategoryDto,
 ):
+    """
+    Create a new item category.
+    Args:
+        user: Current user dependency.
+        service: Item category service dependency.
+        create_item_category_dto (CreateItemCategoryDto): Data for the new item category.
+    Returns:
+        str: Location of the created item category resource.
+    Raises:
+        HTTPException: If item category already exists.
+    """
     try:
         created_item_category = service.create_item_category(create_item_category_dto)
     except CategoryAlreadyExistsException as e:
@@ -68,6 +99,18 @@ async def update_item_category(
     item_category: UpdateItemCategoryDto,
     item_category_id: int = Path(gt=0),
 ):
+    """
+    Update an existing item category.
+    Args:
+        user: Current user dependency.
+        service: Item category service dependency.
+        item_category (UpdateItemCategoryDto): Data to update.
+        item_category_id (int): ID of the item category to update.
+    Returns:
+        str: Update confirmation message.
+    Raises:
+        HTTPException: If item category not found or already exists.
+    """
     try:
         service.update_category(item_category_id, item_category)
     except CategoryNotFoundException as e:
@@ -83,6 +126,17 @@ async def delete_item_category(
     service: service_dependency,
     item_category_id: int = Path(gt=0),
 ):
+    """
+    Delete an item category by ID.
+    Args:
+        user: Current user dependency.
+        service: Item category service dependency.
+        item_category_id (int): ID of the item category to delete.
+    Returns:
+        str: Deletion confirmation message.
+    Raises:
+        HTTPException: If item category not found.
+    """
     try:
         service.delete_category(item_category_id)
     except CategoryNotFoundException as e:

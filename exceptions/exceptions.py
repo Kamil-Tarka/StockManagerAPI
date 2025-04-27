@@ -1,28 +1,42 @@
 class CategoryNotFoundException(Exception):
+    """Exception raised when a category is not found."""
+
     pass
 
 
 class CategoryAlreadyExistsException(Exception):
+    """Exception raised when a category already exists."""
+
     pass
 
 
 class StockItemNotFoundException(Exception):
+    """Exception raised when a stock item is not found."""
+
     pass
 
 
 class StockItemAlreadyExistsException(Exception):
+    """Exception raised when a stock item already exists."""
+
     pass
 
 
 class RoleNotFoundException(Exception):
+    """Exception raised when a role is not found."""
+
     pass
 
 
 class RoleAlreadyExistsException(Exception):
+    """Exception raised when a role already exists."""
+
     pass
 
 
 class RoleNotCreatedException(Exception):
+    """Exception raised when a role could not be created."""
+
     pass
 
 

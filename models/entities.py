@@ -16,6 +16,17 @@ from database_settings import Base
 
 
 class ItemCategory(Base):
+    """
+    Represents a category for stock items.
+
+    Attributes:
+        id (int): Primary key.
+        name (str): Name of the category.
+        creation_date (datetime): Date of creation.
+        last_modification_date (datetime): Date of last modification.
+        stock_item (List[StockItem]): List of stock items in this category.
+    """
+
     __tablename__ = "item_category"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -29,6 +40,17 @@ class ItemCategory(Base):
 
 
 class Role(Base):
+    """
+    Represents a user role in the system.
+
+    Attributes:
+        id (int): Primary key.
+        name (str): Name of the role.
+        creation_date (datetime): Date of creation.
+        last_modification_date (datetime): Date of last modification.
+        role_users (list[User]): Users assigned to this role.
+    """
+
     __tablename__ = "role"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -40,6 +62,23 @@ class Role(Base):
 
 
 class User(Base):
+    """
+    Represents a user in the system.
+
+    Attributes:
+        id (int): Primary key.
+        user_name (str): Username.
+        hashed_password (str): Hashed password.
+        first_name (str): First name.
+        last_name (str): Last name.
+        email (str): Email address.
+        is_active (int): Active status.
+        creation_date (datetime): Date of creation.
+        last_modification_date (datetime): Date of last modification.
+        role_id (int): Foreign key to Role.
+        role (Role): Role relationship.
+    """
+
     __tablename__ = "user"
     __table_args__ = (
         ForeignKeyConstraint(["role_id"], ["role.id"], name="fk_User_Role_id"),
@@ -60,6 +99,20 @@ class User(Base):
 
 
 class StockItem(Base):
+    """
+    Represents an item in stock.
+
+    Attributes:
+        id (int): Primary key.
+        name (str): Name of the item.
+        quantity (int): Quantity in stock.
+        category_id (int): Foreign key to ItemCategory.
+        creation_date (datetime): Date of creation.
+        last_modification_date (datetime): Date of last modification.
+        description (Optional[str]): Description of the item.
+        category (ItemCategory): Category relationship.
+    """
+
     __tablename__ = "stock_item"
     __table_args__ = (
         ForeignKeyConstraint(

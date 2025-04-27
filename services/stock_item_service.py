@@ -18,13 +18,35 @@ from models.models import (
 from paginate.paginate import paginate
 from services.item_category_service import ItemCategoryService
 
+"""
+Service for managing stock item operations, including CRUD, filtering, and business logic.
+"""
+
 
 class StockItemService:
+    """
+    Provides stock item management operations such as create, read, update, delete, and filtering.
+    """
+
     def __init__(self, db: Session):
+        """
+        Initialize StockItemService with a database session.
+        Args:
+            db (Session): SQLAlchemy session object.
+        """
         self.db = db
         self.item_category_service = ItemCategoryService(db)
 
     def get_stock_item_by_id(self, stock_item_id: int) -> StockItem | None:
+        """
+        Return a stock item by its unique ID.
+        Args:
+            stock_item_id (int): The stock item's ID.
+        Returns:
+            StockItem: The stock item object if found.
+        Raises:
+            StockItemNotFoundException: If stock item is not found.
+        """
         stock_item = (
             self.db.query(StockItem).filter(StockItem.id == stock_item_id).first()
         )
@@ -35,6 +57,13 @@ class StockItemService:
         return stock_item
 
     def get_all_stock_items(self, filter_query: StockItemQuery) -> PagedResult:
+        """
+        Return all stock items matching the filter query, with pagination and sorting.
+        Args:
+            filter_query (StockItemQuery): Filtering and pagination options.
+        Returns:
+            PagedResult: Paginated result of stock items.
+        """
         query = self.db.query(StockItem).filter(and_(*filter_query.filter_list))
         total_count = query.count()
 
@@ -63,6 +92,15 @@ class StockItemService:
         return paged_result
 
     def get_stock_item_by_name(self, stock_item_name: str) -> StockItem | None:
+        """
+        Return a stock item by its name.
+        Args:
+            stock_item_name (str): The stock item's name.
+        Returns:
+            StockItem: The stock item object if found.
+        Raises:
+            StockItemNotFoundException: If stock item is not found.
+        """
         stock_item = (
             self.db.query(StockItem).filter(StockItem.name == stock_item_name).first()
         )
@@ -75,6 +113,16 @@ class StockItemService:
     def get_stock_item_by_name_and_category_id(
         self, stock_item_name: str, category_id: int
     ) -> StockItem | None:
+        """
+        Return a stock item by its name and category ID.
+        Args:
+            stock_item_name (str): The stock item's name.
+            category_id (int): The category ID.
+        Returns:
+            StockItem: The stock item object if found.
+        Raises:
+            StockItemNotFoundException: If stock item is not found.
+        """
         stock_item = (
             self.db.query(StockItem)
             .filter(
@@ -89,6 +137,15 @@ class StockItemService:
         return stock_item
 
     def create_stock_item(self, create_stock_item_dto: CreateStockItemDto) -> StockItem:
+        """
+        Create a new stock item in the database.
+        Args:
+            create_stock_item_dto (CreateStockItemDto): Data for the new stock item.
+        Returns:
+            StockItem: The created stock item object.
+        Raises:
+            StockItemAlreadyExistsException: If stock item already exists.
+        """
         try:
             stock_item = self.get_stock_item_by_name_and_category_id(
                 create_stock_item_dto.name, create_stock_item_dto.category_id
@@ -116,6 +173,16 @@ class StockItemService:
         stock_item_id: int,
         update_stock_item_dto: UpdateStockItemDto,
     ) -> StockItem:
+        """
+        Update an existing stock item's information.
+        Args:
+            stock_item_id (int): The stock item's ID.
+            update_stock_item_dto (UpdateStockItemDto): Data to update.
+        Returns:
+            StockItem: The updated stock item object.
+        Raises:
+            StockItemAlreadyExistsException: If stock item already exists.
+        """
         stock_item = self.get_stock_item_by_id(stock_item_id)
         current_date = datetime.now(ZoneInfo("Europe/Warsaw"))
         if update_stock_item_dto.name and stock_item.name != update_stock_item_dto.name:
@@ -156,6 +223,13 @@ class StockItemService:
         return stock_item
 
     def delete_stock_item(self, stock_item_id: int) -> bool:
+        """
+        Delete a stock item by its ID.
+        Args:
+            stock_item_id (int): The stock item's ID.
+        Returns:
+            bool: True if deletion was successful.
+        """
         stock_item = self.get_stock_item_by_id(stock_item_id)
 
         self.db.delete(stock_item)
@@ -163,6 +237,11 @@ class StockItemService:
         return True
 
     def check_if_table_is_empty(self) -> bool:
+        """
+        Check if the stock item table is empty.
+        Returns:
+            bool: True if empty, False otherwise.
+        """
         query = self.db.query(StockItem)
         if query.count() == 0:
             return True

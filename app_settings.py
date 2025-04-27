@@ -1,3 +1,7 @@
+"""
+Module for managing application settings and environment variables.
+"""
+
 import os
 
 from dotenv import load_dotenv
@@ -6,7 +10,16 @@ from exceptions.exceptions import NoEnvirnomentVariableException
 
 
 class AppSettings:
+    """
+    Manages application configuration and environment variables.
+    Supports development and production environments with different .env files.
+    """
+
     def __init__(self):
+        """
+        Initialize AppSettings with environment-specific configuration.
+        Raises NoEnvirnomentVariableException if required environment variables are missing.
+        """
         self._envirnoment = os.getenv("envirnoment")
         if self._envirnoment is None:
             raise NoEnvirnomentVariableException(
@@ -41,10 +54,15 @@ class AppSettings:
 
     @property
     def envirnoment(self):
+        """Returns the current environment setting ('development' or 'production')."""
         return self._envirnoment
 
     @property
     def secret_key(self):
+        """
+        Returns the secret key for JWT token generation.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._secret_key is None:
             raise NoEnvirnomentVariableException(
                 "No SECRET_KEY variable found, SECRET_KEY is required variable"
@@ -54,6 +72,10 @@ class AppSettings:
 
     @property
     def token_expiration_time(self):
+        """
+        Returns the JWT token expiration time in minutes.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._token_expiration_time is None:
             raise NoEnvirnomentVariableException(
                 "No TOKEN_EXPIRATION_TIME variable found, TOKEN_EXPIRATION_TIME  is required variable"
@@ -63,6 +85,10 @@ class AppSettings:
 
     @property
     def refresh_token_expiration_time(self):
+        """
+        Returns the refresh token expiration time in minutes.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._refresh_token_expiration_time is None:
             raise NoEnvirnomentVariableException(
                 "No REFRESH_TOKEN_EXPIRATION_TIME variable found, REFRESH_TOKEN_EXPIRATION_TIME is required variable"
@@ -72,6 +98,10 @@ class AppSettings:
 
     @property
     def token_algorithm(self):
+        """
+        Returns the algorithm used for JWT token generation.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._alghoritm is None:
             raise NoEnvirnomentVariableException(
                 "No ALGORITHM variable found, ALGORITHM is required variable"
@@ -81,6 +111,10 @@ class AppSettings:
 
     @property
     def db_name(self):
+        """
+        Returns the database name.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._db_name is None:
             raise NoEnvirnomentVariableException(
                 "No DB_NAME variable found, DB_NAME is required variable"
@@ -89,6 +123,10 @@ class AppSettings:
 
     @property
     def db_host(self):
+        """
+        Returns the database host address.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._db_host is None:
             raise NoEnvirnomentVariableException(
                 "No DB_HOST variable found, DB_HOST is required variable"
@@ -98,6 +136,10 @@ class AppSettings:
 
     @property
     def db_user(self):
+        """
+        Returns the database username.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._db_user is None:
             raise NoEnvirnomentVariableException(
                 "No DB_USER variable found, DB_USER is required variable"
@@ -107,6 +149,10 @@ class AppSettings:
 
     @property
     def db_password(self):
+        """
+        Returns the database password.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._db_password is None:
             raise NoEnvirnomentVariableException(
                 "No DB_PASSWORD variable found, DB_PASSWORD is required variable"
@@ -116,6 +162,10 @@ class AppSettings:
 
     @property
     def charset(self):
+        """
+        Returns the database character set.
+        Raises NoEnvirnomentVariableException if not set.
+        """
         if self._charset is None:
             raise NoEnvirnomentVariableException(
                 "No CHARSET variable found, CHARSET is required variable"

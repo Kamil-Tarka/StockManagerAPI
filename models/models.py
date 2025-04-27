@@ -8,6 +8,16 @@ from models.entities import ItemCategory, Role, StockItem, User
 
 
 class ReadItemCategoryDto(BaseModel):
+    """
+    Data transfer object for reading item category information.
+
+    Attributes:
+        id (int): Unique identifier of the category.
+        name (str): Name of the category.
+        creation_date (datetime): Date the category was created.
+        last_modification_date (datetime): Date the category was last modified.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -17,6 +27,19 @@ class ReadItemCategoryDto(BaseModel):
 
 
 class ReadStockItemDto(BaseModel):
+    """
+    Data transfer object for reading stock item information.
+
+    Attributes:
+        id (int): Unique identifier of the stock item.
+        name (str): Name of the stock item.
+        description (Optional[str]): Description of the stock item.
+        quantity (int): Quantity in stock.
+        creation_date (datetime): Date the item was created.
+        last_modification_date (datetime): Date the item was last modified.
+        category (ReadItemCategoryDto): Category of the stock item.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -29,18 +52,42 @@ class ReadStockItemDto(BaseModel):
 
 
 class CreateItemCategoryDto(BaseModel):
+    """
+    Data transfer object for creating a new item category.
+
+    Attributes:
+        name (str): Name of the new category.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str = Field(..., min_length=1, max_length=50)
 
 
 class UpdateItemCategoryDto(BaseModel):
+    """
+    Data transfer object for updating an existing item category.
+
+    Attributes:
+        name (Optional[str]): New name for the category.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str | None = Field(None, max_length=50)
 
 
 class CreateStockItemDto(BaseModel):
+    """
+    Data transfer object for creating a new stock item.
+
+    Attributes:
+        name (str): Name of the stock item.
+        description (Optional[str]): Description of the stock item.
+        quantity (int): Quantity in stock.
+        category_id (int): ID of the category the item belongs to.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str = Field(..., min_length=1, max_length=50)
@@ -50,6 +97,16 @@ class CreateStockItemDto(BaseModel):
 
 
 class UpdateStockItemDto(BaseModel):
+    """
+    Data transfer object for updating an existing stock item.
+
+    Attributes:
+        name (Optional[str]): New name for the stock item.
+        description (Optional[str]): New description.
+        quantity (Optional[int]): New quantity.
+        category_id (Optional[int]): New category ID.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str | None = Field(None, max_length=50)
@@ -59,6 +116,16 @@ class UpdateStockItemDto(BaseModel):
 
 
 class ReadRoleDto(BaseModel):
+    """
+    Data transfer object for reading role information.
+
+    Attributes:
+        id (int): Unique identifier of the role.
+        name (str): Name of the role.
+        creation_date (datetime): Date the role was created.
+        last_modification_date (datetime): Date the role was last modified.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -68,18 +135,47 @@ class ReadRoleDto(BaseModel):
 
 
 class CreateRoleDto(BaseModel):
+    """
+    Data transfer object for creating a new role.
+
+    Attributes:
+        name (str): Name of the new role.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str = Field(..., min_length=1, max_length=50)
 
 
 class UpdateRoleDto(BaseModel):
+    """
+    Data transfer object for updating an existing role.
+
+    Attributes:
+        name (Optional[str]): New name for the role.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: str | None = Field(None, max_length=50)
 
 
 class ReadUserDto(BaseModel):
+    """
+    Data transfer object for reading user information.
+
+    Attributes:
+        id (int): Unique identifier of the user.
+        user_name (str): Username of the user.
+        first_name (str): First name of the user.
+        last_name (str): Last name of the user.
+        email (str): Email address of the user.
+        is_active (bool): Whether the user is active.
+        creation_date (datetime): Date the user was created.
+        last_modification_date (datetime): Date the user was last modified.
+        role (ReadRoleDto): Role assigned to the user.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -94,6 +190,18 @@ class ReadUserDto(BaseModel):
 
 
 class CreateUserDto(BaseModel):
+    """
+    Data transfer object for creating a new user.
+
+    Attributes:
+        user_name (str): Username of the user.
+        first_name (str): First name of the user.
+        last_name (str): Last name of the user.
+        email (str): Email address of the user.
+        password (str): Password for the user.
+        role_id (int): ID of the role assigned to the user.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     user_name: str = Field(..., min_length=1, max_length=50)
@@ -105,6 +213,19 @@ class CreateUserDto(BaseModel):
 
 
 class UpdateUserDto(BaseModel):
+    """
+    Data transfer object for updating an existing user.
+
+    Attributes:
+        user_name (Optional[str]): New username.
+        first_name (Optional[str]): New first name.
+        last_name (Optional[str]): New last name.
+        email (Optional[str]): New email address.
+        password (Optional[str]): New password.
+        is_active (Optional[bool]): New active status.
+        role_id (Optional[int]): New role ID.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     user_name: str | None = Field(None, min_length=1, max_length=50)
@@ -117,6 +238,14 @@ class UpdateUserDto(BaseModel):
 
 
 class LoginUserDto(BaseModel):
+    """
+    Data transfer object for user login credentials.
+
+    Attributes:
+        username (str): Username for login.
+        password (str): Password for login.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     username: str = Field(..., min_length=1, max_length=50)
@@ -124,12 +253,28 @@ class LoginUserDto(BaseModel):
 
 
 class TokenResponse(BaseModel):
+    """
+    Data transfer object for authentication token response.
+
+    Attributes:
+        access_token (str): Access token.
+        token_type (str): Type of the token.
+        refresh_token (str): Refresh token.
+    """
+
     access_token: str
     token_type: str
     refresh_token: str
 
 
 class RefreshTokenBody(BaseModel):
+    """
+    Data transfer object for refresh token request body.
+
+    Attributes:
+        refresh_token (str): Refresh token.
+    """
+
     refresh_token: str
 
 
@@ -137,6 +282,17 @@ T = TypeVar("T ")
 
 
 class PagedResult(BaseModel, Generic[T]):
+    """
+    Generic data transfer object for paginated results.
+
+    Attributes:
+        data (List[T]): List of items on the current page.
+        current_page (int): Current page number.
+        page_size (int): Number of items per page.
+        total_items (int): Total number of items.
+        total_pages (int): Total number of pages.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     data: List[T]
@@ -147,11 +303,29 @@ class PagedResult(BaseModel, Generic[T]):
 
 
 class SortDirection(str, Enum):
+    """
+    Enumeration for sort direction values.
+
+    Values:
+        asc: Ascending order.
+        desc: Descending order.
+    """
+
     asc = "asc"
     desc = "desc"
 
 
 class BaseQuery(BaseModel):
+    """
+    Base class for query models supporting pagination and sorting.
+
+    Attributes:
+        page (int): The current page number (default: 1).
+        page_size (int): The number of items per page (default: 10).
+        sort_by (Optional[str]): Field to sort by.
+        sort_direction (SortDirection): Sorting direction (asc or desc).
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     page: int = Field(1, gt=0)
@@ -161,6 +335,24 @@ class BaseQuery(BaseModel):
 
 
 class UserFilterQuery(BaseQuery):
+    """
+    Query model for filtering users with various criteria.
+
+    Inherits pagination and sorting parameters from BaseQuery:
+        page (int): The current page number (default: 1).
+        page_size (int): The number of items per page (default: 10).
+        sort_by (Optional[str]): Field to sort by.
+        sort_direction (SortDirection): Sorting direction (asc or desc).
+
+    Attributes:
+        user_name (Optional[str]): Filter by user name.
+        first_name (Optional[str]): Filter by first name.
+        last_name (Optional[str]): Filter by last name.
+        email (Optional[str]): Filter by email.
+        is_active (Optional[bool]): Filter by active status.
+        role_name (Optional[str]): Filter by role name.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     user_name: Optional[str] = Field(None, max_length=50)
@@ -172,6 +364,11 @@ class UserFilterQuery(BaseQuery):
 
     @property
     def filter_list(self):
+        """
+        Constructs a list of SQLAlchemy filter expressions based on the provided filter fields.
+        Returns:
+            list: List of filter expressions for querying users.
+        """
         filter_list = []
         if self.user_name:
             filter_list.append(User.user_name.like(f"%{self.user_name}%"))
@@ -189,6 +386,22 @@ class UserFilterQuery(BaseQuery):
 
 
 class StockItemQuery(BaseQuery):
+    """
+    Query model for filtering stock items with various criteria.
+
+    Inherits pagination and sorting parameters from BaseQuery:
+        page (int): The current page number (default: 1).
+        page_size (int): The number of items per page (default: 10).
+        sort_by (Optional[str]): Field to sort by.
+        sort_direction (SortDirection): Sorting direction (asc or desc).
+
+    Attributes:
+        name (Optional[str]): Filter by item name.
+        description (Optional[str]): Filter by description.
+        quantity (Optional[int]): Filter by quantity.
+        category_name (Optional[str]): Filter by category name.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: Optional[str] = Field(None, max_length=50)
@@ -227,6 +440,19 @@ class StockItemQuery(BaseQuery):
 
 
 class RoleFilterQuery(BaseQuery):
+    """
+    Query model for filtering roles by name.
+
+    Inherits pagination and sorting parameters from BaseQuery:
+        page (int): The current page number (default: 1).
+        page_size (int): The number of items per page (default: 10).
+        sort_by (Optional[str]): Field to sort by.
+        sort_direction (SortDirection): Sorting direction (asc or desc).
+
+    Attributes:
+        name (Optional[str]): Filter by role name.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: Optional[str] = Field(None, max_length=50)
@@ -240,6 +466,19 @@ class RoleFilterQuery(BaseQuery):
 
 
 class ItemCategoryFilterQuery(BaseQuery):
+    """
+    Query model for filtering item categories by name.
+
+    Inherits pagination and sorting parameters from BaseQuery:
+        page (int): The current page number (default: 1).
+        page_size (int): The number of items per page (default: 10).
+        sort_by (Optional[str]): Field to sort by.
+        sort_direction (SortDirection): Sorting direction (asc or desc).
+
+    Attributes:
+        name (Optional[str]): Filter by category name.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     name: Optional[str] = Field(None, max_length=50)

@@ -27,6 +27,16 @@ async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     service: service_dependency,
 ):
+    """
+    Authenticate user and return access and refresh tokens.
+    Args:
+        form_data (OAuth2PasswordRequestForm): Login form data.
+        service: Auth service dependency.
+    Returns:
+        TokenResponse: Access and refresh tokens.
+    Raises:
+        HTTPException: If user not found, disabled, or password is wrong.
+    """
     try:
         login_user_dto = LoginUserDto(
             username=form_data.username, password=form_data.password
@@ -44,6 +54,16 @@ async def login_for_access_token(
 
 @router.post("/refresh-token", response_model=TokenResponse)
 async def refresh_token(service: service_dependency, refresh_token: RefreshTokenBody):
+    """
+    Refresh access and refresh tokens using a valid refresh token.
+    Args:
+        service: Auth service dependency.
+        refresh_token (RefreshTokenBody): Refresh token data.
+    Returns:
+        TokenResponse: New access and refresh tokens.
+    Raises:
+        HTTPException: If token is invalid, expired, or user is not valid.
+    """
     try:
         new_token = service.refresh_user_token(refresh_token)
     except UserNotFoundException as e:
